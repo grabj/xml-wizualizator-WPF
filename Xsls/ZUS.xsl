@@ -1,542 +1,354 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:adr="http://crd.gov.pl/xml/schematy/adres/2009/11/09/" xmlns:oso="http://crd.gov.pl/xml/schematy/osoba/2009/11/16/" xmlns:inst="http://crd.gov.pl/xml/schematy/instytucja/2009/11/16/" xmlns:meta="http://crd.gov.pl/xml/schematy/meta/2009/11/16/" xmlns:str="http://crd.gov.pl/xml/schematy/struktura/2009/11/16/" xmlns:wnio="http://crd.gov.pl/wzor/2013/12/12/1410/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="http://www.w3.org/1999/xhtml" version="1.0" xsi:schemaLocation="http://www.w3.org/1999/XSL/Transform http://www.w3.org/2005/02/schema-for-xslt20.xsd" exclude-result-prefixes="adr oso inst meta wnio ds str xsi">
-	<xsl:output method="xml" encoding="utf-8" indent="yes" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN"/>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	version="1.0" xmlns:zn="http://pue.zus.pl/rd/ZN/2/"
+	xmlns:adr="http://pue.zus.pl/rd/ZN/2/" 
+	xmlns:oso="http://pue.zus.pl/rd/ZN/2/"
+	xmlns:str="http://pue.zus.pl/rd/ZN/2/"
+	xmlns:meta="http://pue.zus.pl/rd/ZN/2/"
+	xmlns:inst="http://pue.zus.pl/rd/ZN/2/"
+	xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 	<xsl:template match="/">
-		<xsl:apply-templates select="wnio:Dokument"/>
-	</xsl:template>
-	<xsl:template match="wnio:Dokument">
-		<xsl:param name="tresc" select="wnio:TrescDokumentu"/>
+	<!-- Styl do dok. ZN 
+	26-10-2022 poprawiono składanie danych adresowych oraz dodano słowo - wymagalnych w treści dok. 
+	-->
+	
 		<html>
 			<head>
-				<title>Dokument elektroniczny</title>
-				<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-				<style type="text/css">
-					.body
-					{
-					text-align: justify;
-					font-size: 11px;
-					font-family: Verdana;
-					line-height: 20px;
-					}
-					.mainTxt
-					{
-					text-align: justify;
-					font-size: 12px;
-					font-family: Verdana;
-					line-height: 20px;
-					white-space: pre-wrap;
-					word-wrap: break-word;
-					}
-					.mainTxtContainer
-					{
-
-					}
-
-					.acc {
-					position: absolute;
-					left: -9999px;
-					}
-
-					.osw {
-					list-style-type: none;
-					padding: 0px;
-					}
-
-					.oswli{
-
-					}
+				<meta http-equiv="pragma" content="no-cache" />
+				<style>
+					<xsl:text>
+        .id-left { font-weight: bold; padding-right: 1em; }
+        .id-right { padding-right: 1em; font-family: monospace; }
+        .referent { font-weight: bold; }
+        .head-zus { align: left; }
+        .head-data { align: right; }
+        h2 { text-align: center; font-weight: bolder; }
+        </xsl:text>
 				</style>
+				<title>
+					<xsl:value-of
+						select="//zn:Dokument/zn:DaneDokumentu/str:Naglowek/str:NazwaDokumentu" />
+				</title>
 			</head>
-			<body class="body">
-				<div style="width: 100%;">
-					<xsl:call-template name="NaglowekStandard"/>
-					<xsl:if test="string-length(wnio:DaneDokumentu/str:Naglowek/str:NazwaDokumentu) &gt; 0">
-						<p align="center" style="text-align: center;font-size: 12px;font-family: Verdana;line-height: 20px;padding-top: 10px;">
-							<span style="font-weight: bold;font-size: 12px;">
-								<xsl:value-of select="wnio:DaneDokumentu/str:Naglowek/str:NazwaDokumentu"/>
-							</span>
-						</p>
-					</xsl:if>
-					<br/>
-					<xsl:call-template name="RodzajDokumentu"/>
-					<xsl:call-template name="TytulDokumentu"/>
-					<h4 class="acc">Treść dokumentu</h4>
-					<xsl:for-each select="$tresc/wnio:Informacje/wnio:Informacja">
-						<xsl:if test="string-length(.) &gt; 0">
-							<div class="mainTxtContainer">
-								<pre class="mainTxt">
-									<xsl:value-of select="."/>
-								</pre>
-							</div>
+			<body>
+
+      	<xsl:element name="table">
+      		<xsl:attribute name="width">100%</xsl:attribute>
+      		<xsl:element name="tr">
+      			<xsl:element name="td">
+      				<xsl:attribute name="class">head-zus</xsl:attribute>
+                <xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/str:Nadawcy/meta:Podmiot/inst:Instytucja/inst:NazwaInstytucji"/><br/> 
+					
+                     ul. 
+					<xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/str:Nadawcy/meta:Podmiot/inst:Instytucja/adr:Adres/adr:Ulica"/><xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+					<xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/str:Nadawcy/meta:Podmiot/inst:Instytucja/adr:Adres/adr:Budynek"/>
+					<xsl:if test="//zn:Dokument/zn:DaneDokumentu/str:Nadawcy/meta:Podmiot/inst:Instytucja/adr:Adres/adr:Lokal != ''">/
+					<xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/str:Nadawcy/meta:Podmiot/inst:Instytucja/adr:Adres/adr:Lokal"/>
+					</xsl:if><br/>
+					<xsl:variable name = "INST_kodp">
+						<xsl:variable name = "kodp_inst" select = "//zn:Dokument/zn:DaneDokumentu/str:Nadawcy/meta:Podmiot/inst:Instytucja/adr:Adres/adr:KodPocztowy"/>					
+							  <xsl:choose>
+								<xsl:when test="substring($kodp_inst,3,1)='-'">
+								 <xsl:value-of select = "$kodp_inst"/>
+								</xsl:when>
+								<xsl:otherwise>
+								 <xsl:value-of select = "substring($kodp_inst, 1, 2)"/>-<xsl:value-of select = "substring($kodp_inst, 3, 3)"/>
+								</xsl:otherwise>
+							  </xsl:choose>					  					  
+						</xsl:variable>
+					<xsl:value-of select="$INST_kodp"/><xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+					<xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/str:Nadawcy/meta:Podmiot/inst:Instytucja/adr:Adres/adr:Miejscowosc"/>					
+					
+      			</xsl:element>
+      			<xsl:element name="td">
+      				<xsl:attribute name="class">head-data</xsl:attribute>
+                Data wydania: <xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/meta:Data/meta:Czas"/>                
+      			</xsl:element>
+      		</xsl:element>
+      	</xsl:element>
+
+				<h2><xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/str:Naglowek/str:NazwaDokumentu" /></h2>
+
+				<ol>
+					<li>
+						Nr zaświadczenia:<xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+						<xsl:value-of
+							select="//zn:Dokument/zn:DaneDokumentu/str:Naglowek/meta:Identyfikator[@typIdentyfikatora='nr_zaswiadczenia']/meta:Wartosc" />
+					</li>
+					<li>
+						Dane wnioskodawcy (płatnika składek):
+						<br />
+						Nazwa / Nazwisko i imię / Adres:<xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+						<xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/inst:Instytucja/inst:NazwaInstytucji" /> /<xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text><xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/oso:Nazwisko" /> 
+						<xsl:value-of select="//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/oso:Imie" /> /<xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+						<xsl:call-template name="adres"/>
+					</li>
+
+
+					<xsl:element name="table">
+						<xsl:element name="tr">
+							<xsl:element name="td">
+								<xsl:attribute name="class">id-left</xsl:attribute>
+								NIP
+							</xsl:element>
+							<xsl:element name="td">
+								<xsl:attribute name="class">id-right</xsl:attribute>
+								<xsl:value-of
+									select="//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/inst:Instytucja/inst:IdInstytucji/inst:NIP" />
+								<xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+							</xsl:element>
+						</xsl:element>
+						<xsl:element name="tr">
+							<xsl:element name="td">
+								<xsl:attribute name="class">id-left</xsl:attribute>
+								REGON
+							</xsl:element>
+							<xsl:element name="td">
+								<xsl:attribute name="class">id-right</xsl:attribute>
+								<xsl:value-of
+									select="//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/inst:Instytucja/inst:IdInstytucji/inst:REGON" />
+								<xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+							</xsl:element>
+						</xsl:element>
+						<xsl:element name="tr">
+							<xsl:element name="td">
+								<xsl:attribute name="class">id-left</xsl:attribute>
+								PESEL
+							</xsl:element>
+							<xsl:element name="td">
+								<xsl:attribute name="class">id-right</xsl:attribute>
+								<xsl:value-of
+									select="//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/oso:IdOsoby/oso:PESEL" />
+								<xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+							</xsl:element>
+						</xsl:element>
+						<xsl:element name="tr">
+							<xsl:element name="td">
+								<xsl:attribute name="class">id-left</xsl:attribute>
+								Seria i nr dokumentu tożsamości
+							</xsl:element>
+							<xsl:element name="td">
+								<xsl:attribute name="class">id-right</xsl:attribute>
+								<xsl:value-of
+									select="//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/oso:IdOsoby/oso:InnyIdentyfikator/oso:WartoscIdentyfikatora" />
+								<xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+							</xsl:element>
+						</xsl:element>
+					</xsl:element>
+
+					<li>
+						<xsl:element name="p">
+							<xsl:choose>
+								<xsl:when
+									test="string(//zn:TrescDokumentu/zn:Zobowiazania/meta:Data/meta:Do) != ''"><!-- były płatnik składek -->
+									<xsl:choose>
+										<xsl:when
+											test="string(//zn:TrescDokumentu/zn:Zawieszenie/meta:Data/meta:Od) != ''"><!-- zawieszenie zobowiązań -->
+											Zaświadcza się, że wnioskodawca w dniu wydania zaświadczenia
+											korzysta od dnia
+											<xsl:value-of
+												select="//zn:TrescDokumentu/zn:Zawieszenie/meta:Data/meta:Od" />
+											z prawa do zawieszenia działalności gospodarczej. Z tytułu
+											istniejącego do dnia
+											<xsl:value-of
+												select="//zn:TrescDokumentu/zn:Zobowiazania/meta:Data/meta:Do" />
+											obowiązku opłacania składek na:
+										</xsl:when>
+										<xsl:otherwise><!-- bieżące zobowiązania (brak zawieszenia) -->
+											Zaświadcza się, że wnioskodawca w dniu wydania zaświadczenia
+											nie jest płatnikiem składek, natomiast z tytułu istniejącego
+											do dnia
+											<xsl:value-of
+												select="//zn:TrescDokumentu/zn:Zobowiazania/meta:Data/meta:Do" />
+											obowiązku opłacania składek na:
+										</xsl:otherwise>
+									</xsl:choose>
+								</xsl:when>
+								<xsl:otherwise><!-- aktualny płatnik składek -->
+									Zaświadcza się, że wnioskodawca (płatnik składek) zobowiązany
+									jest do opłacania składek na:
+								</xsl:otherwise>
+							</xsl:choose>
+
+							<xsl:element name="ol">
+								<xsl:attribute name="type">a</xsl:attribute>
+								<xsl:for-each
+									select="//zn:TrescDokumentu/zn:Zobowiazania/zn:Zobowiazanie">
+									<xsl:element name="li">
+										<xsl:value-of select="." />
+									</xsl:element>
+								</xsl:for-each>
+							</xsl:element>
+						</xsl:element>
+						<xsl:element name="p">
+							nie posiada zaległości wymagalnych według stanu na dzień
+							<xsl:value-of
+								select="//zn:TrescDokumentu//zn:StanRozliczen/meta:Data/meta:Czas" />
+						</xsl:element>
+						<xsl:if test="//zn:TrescDokumentu/zn:Ulgi/zn:Ulga">
+							<xsl:element name="p">
+								gdyż korzysta z ulgi w postaci:
+								<xsl:element name="ul">
+									<xsl:for-each select="//zn:TrescDokumentu/zn:Ulgi/zn:Ulga">
+										<xsl:element name="li">
+											<xsl:value-of select="." />
+										</xsl:element>
+									</xsl:for-each>
+								</xsl:element>
+							</xsl:element>
 						</xsl:if>
-					</xsl:for-each>
-					<xsl:call-template name="Oswiadczenia"/>
-					<xsl:call-template name="InformacjeDodatkowe">
-						<xsl:with-param name="informacje" select="$tresc/wnio:InformacjeDodatkowe"/>
-					</xsl:call-template>
-					<xsl:call-template name="Upowaznienie"/>
-					<xsl:call-template name="Zalaczniki"/>
-					<xsl:call-template name="DoWiadomosci"/>
-					<xsl:call-template name="Podpis"/>
-				</div>
+					</li>
+				</ol>
+
+				<xsl:element name="p">
+					Zaświadczenie wydaje się na wniosek płatnika składek, na podstawie
+					<xsl:value-of select="//zn:TrescDokumentu/zn:PodstawaPrawna" />
+				</xsl:element>
+				<xsl:element name="p">
+					<xsl:attribute name="class">referent</xsl:attribute>
+					Pracownik ZUS upoważniony do wydania zaświadczenia: <xsl:text disable-output-escaping="yes"><![CDATA[&nbsp;]]></xsl:text>
+					<xsl:value-of
+						select="concat(//str:Nadawcy/meta:Podmiot/inst:Instytucja/inst:Pracownik/oso:Imie, ' ', //str:Nadawcy/meta:Podmiot/inst:Instytucja/inst:Pracownik/oso:Nazwisko)" />
+				</xsl:element>
+				<br />
+				<xsl:call-template name="signature" />
 			</body>
 		</html>
+
 	</xsl:template>
-	<xsl:template name="NaglowekStandard">
-		<h1 class="acc">Dokument elektroniczny</h1>
-		<h2 class="acc">Dane nadawców</h2>
-		<p style="width: 340px;text-align: left;font-size: 12px;font-family: Verdana;line-height: 20px;float:left;">
-			<xsl:call-template name="Podmioty">
-				<xsl:with-param name="podmiot" select="wnio:DaneDokumentu/str:Nadawcy"/>
-			</xsl:call-template>
-		</p>
-		<h2 class="acc">Miejsce i data sporządzenia dokumentu</h2>
-		<p style="text-align: right;font-size: 12px;font-family: Verdana;line-height: 20px;float: right">
-			<xsl:call-template name="MiejscowoscData"/>
-		</p>
-		<div style="clear: both;"/>
-		<h2 class="acc">Dane adresatów</h2>
-		<div align="right" style="text-align: right;font-size: 12px;font-family: Verdana;line-height: 20px;">
-			<table style="float: right;">
-				<tr>
-					<td style="width: auto;max-width: 300px;">
-						<p align="left" style="text-align: left;font-size: 12px;font-family: Verdana;line-height: 20px;max-width: 280px">
-							<xsl:call-template name="Podmioty">
-								<xsl:with-param name="podmiot" select="wnio:DaneDokumentu/str:Adresaci"/>
-							</xsl:call-template>
-						</p>
-					</td>
-				</tr>
-			</table>
-		</div>
-		<xsl:if test="string-length(wnio:DaneDokumentu/str:Naglowek/meta:Identyfikator/meta:Wartosc) &gt; 0">
-			<p align="left" style="text-align: left;font-size: 12px;font-family: Verdana;line-height: 20px;">
-				<xsl:value-of select="wnio:DaneDokumentu/str:Naglowek/meta:Identyfikator/meta:Wartosc"/>
-			</p>
-		</xsl:if>
-		<div style="clear: both;"/>
-	</xsl:template>
-	<xsl:template name="Zalaczniki">
-		<xsl:param name="zalaczniki" select="wnio:TrescDokumentu/str:Zalaczniki"/>
-		<xsl:if test="count($zalaczniki/str:Zalacznik) &gt; 0">
-			<div style="text-align: left;">
-				<h2 style="font-size: 11px;font-family: Verdana;line-height: 20px;padding: 0px;margin:0px; font-weight: normal;">Załączniki:</h2>
-				<ol style="padding-top: 0px;margin-top: 0px;">
-					<xsl:for-each select="$zalaczniki/str:Zalacznik[@nazwaPliku != '']">
-						<li>
-							<xsl:if test="@kodowanie='base64'">
-								<xsl:value-of select="@nazwaPliku"/>
-								<xsl:if test="string-length(str:OpisZalacznika) &gt; 0"> - </xsl:if>
-								<xsl:if test="string-length(str:OpisZalacznika) &gt; 0">
-									<xsl:value-of select="str:OpisZalacznika"/>
-								</xsl:if>
-							</xsl:if>
-							<xsl:if test="@kodowanie='URI'">
-								<a href="{str:DaneZalacznika}">
-									<xsl:value-of select="@nazwaPliku"/>
-								</a>
-								<xsl:if test="string-length(str:OpisZalacznika) &gt; 0">
-									(wartość skrótu w chwili załączania:
-									<xsl:value-of select="str:OpisZalacznika"/>)
-								</xsl:if>
-							</xsl:if>
-						</li>
-					</xsl:for-each>
-				</ol>
-			</div>
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="MiejscowoscData">
-		<xsl:param name="miejscowosc" select="wnio:TrescDokumentu/wnio:MiejscowoscDokumentu"/>
-		<xsl:param name="data" select="wnio:DaneDokumentu/meta:Data[@typDaty='stworzony']/meta:Czas"/>
-		<xsl:value-of select="$miejscowosc"/>,
-		<xsl:value-of select="' '"/>
-		<xsl:value-of select="$data"/>
-	</xsl:template>
-	<xsl:template name="PodmiotKontakt">
-		<xsl:param name="kontakt" select="adr:Kontakt"/>
-		<xsl:param name="inline" select="'false'"/>
-		<xsl:for-each select="$kontakt/adr:Telefon">
-			<xsl:if test="string-length(.) &gt; 0">
-				<xsl:value-of select="concat('Telefon: ',.)"/>
-				<xsl:call-template name="InLine">
-					<xsl:with-param name="value" select="$inline"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:for-each>
-		<xsl:for-each select="$kontakt/adr:Faks">
-			<xsl:if test="string-length(.) &gt; 0">
-				<xsl:value-of select="concat('Faks: ',.)"/>
-				<xsl:call-template name="InLine">
-					<xsl:with-param name="value" select="$inline"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:for-each>
-		<xsl:for-each select="$kontakt/adr:Email">
-			<xsl:if test="string-length(.) &gt; 0">
-				<xsl:value-of select="concat('Email: ',.)"/>
-				<xsl:call-template name="InLine">
-					<xsl:with-param name="value" select="$inline"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:for-each>
-		<xsl:for-each select="$kontakt/adr:URIKontakt">
-			<xsl:if test="string-length(.) &gt; 0">
-				<xsl:value-of select="concat('',.)"/>
-				<xsl:call-template name="InLine">
-					<xsl:with-param name="value" select="$inline"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:for-each>
-		<xsl:for-each select="$kontakt/adr:InnyKontakt">
-			<xsl:if test="string-length(.) &gt; 0">
-				<xsl:value-of select="concat('',.)"/>
-				<xsl:call-template name="InLine">
-					<xsl:with-param name="value" select="$inline"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:for-each>
-	</xsl:template>
-	<xsl:template name="PodmiotIdentyfikatory">
-		<xsl:param name="id" select="oso:IdOsoby"/>
-		<xsl:param name="inline" select="'false'"/>
-		<xsl:if test="string-length($id/oso:PESEL) &gt; 0">
-			<xsl:value-of select="concat('PESEL: ',$id/oso:PESEL)"/>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="string-length($id/oso:NIP) &gt; 0">
-			<xsl:value-of select="concat('NIP: ',$id/oso:NIP)"/>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="string-length($id/oso:InnyIdentyfikator/oso:WartoscIdentyfikatora) &gt; 0">
-			<xsl:if test="string-length($id/oso:InnyIdentyfikator/oso:TypIdentyfikatora) &gt; 0">
-				<xsl:value-of select="$id/oso:InnyIdentyfikator/oso:TypIdentyfikatora"/>
-				<xsl:value-of select="': '"/>
-			</xsl:if>
-			<xsl:value-of select="$id/oso:InnyIdentyfikator/oso:WartoscIdentyfikatora"/>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="string-length($id/inst:KRS) &gt; 0">
-			<xsl:value-of select="concat('KRS: ',$id/inst:KRS)"/>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="string-length($id/inst:NIP) &gt; 0">
-			<xsl:value-of select="concat('NIP: ',$id/inst:NIP)"/>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="string-length($id/inst:REGON) &gt; 0">
-			<xsl:value-of select="concat('REGON: ',$id/inst:REGON)"/>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="string-length($id/inst:InnyIdentyfikator/inst:WartoscIdentyfikatora) &gt; 0">
-			<xsl:if test="string-length($id/inst:InnyIdentyfikator/inst:TypIdentyfikatora) &gt; 0">
-				<xsl:value-of select="$id/inst:InnyIdentyfikator/inst:TypIdentyfikatora"/>
-				<xsl:value-of select="': '"/>
-			</xsl:if>
-			<xsl:value-of select="$id/inst:InnyIdentyfikator/inst:WartoscIdentyfikatora"/>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="PodmiotOsoba">
-		<xsl:param name="osoba" select="wnio:DaneDokumentu/str:Nadawcy/meta:Podmiot/oso:Osoba"/>
-		<xsl:param name="inline" select="'false'"/>
-		<xsl:value-of select="$osoba/oso:Imie"/>
-		<xsl:if test="string-length($osoba/oso:ImieDrugie) &gt; 0">
-			<xsl:value-of select="' '"/>
-			<xsl:value-of select="$osoba/oso:ImieDrugie"/>
-		</xsl:if>
-		<xsl:for-each select="$osoba/oso:Nazwisko[string-length(.) &gt; 0]">
-			<xsl:value-of select="' '"/>
-			<xsl:value-of select="."/>
-		</xsl:for-each>
-		<xsl:call-template name="InLine">
-			<xsl:with-param name="value" select="$inline"/>
-		</xsl:call-template>
-		<xsl:if test="count($osoba/adr:Adres) &gt; 0">
-			<xsl:call-template name="Adres">
-				<xsl:with-param name="adres" select="$osoba/adr:Adres"/>
-				<xsl:with-param name="inline" select="$inline"/>
-			</xsl:call-template>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="count($osoba/oso:IdOsoby) &gt; 0">
-			<xsl:call-template name="PodmiotIdentyfikatory">
-				<xsl:with-param name="id" select="$osoba/oso:IdOsoby"/>
-				<xsl:with-param name="inline" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="count($osoba/adr:Kontakt) &gt; 0">
-			<xsl:call-template name="PodmiotKontakt">
-				<xsl:with-param name="kontakt" select="$osoba/adr:Kontakt"/>
-				<xsl:with-param name="inline" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="PodmiotInstytucja">
-		<xsl:param name="instytucja" select="wnio:DaneDokumentu/str:Adresaci/meta:Podmiot/inst:Instytucja"/>
-		<xsl:param name="inline" select="'false'"/>
-		<xsl:if test="string-length($instytucja/inst:NazwaInstytucji) &gt; 0">
-			<xsl:value-of select="$instytucja/inst:NazwaInstytucji"/>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="$instytucja/inst:Jednostka">
-			<xsl:call-template name="PodmiotJednostka">
-				<xsl:with-param name="jednostka" select="$instytucja/inst:Jednostka"/>
-				<xsl:with-param name="inline" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="count($instytucja/adr:Adres) &gt; 0">
-			<xsl:call-template name="Adres">
-				<xsl:with-param name="adres" select="$instytucja/adr:Adres"/>
-				<xsl:with-param name="inline" select="$inline"/>
-			</xsl:call-template>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="count($instytucja/inst:IdInstytucji) &gt; 0">
-			<xsl:call-template name="PodmiotIdentyfikatory">
-				<xsl:with-param name="id" select="$instytucja/inst:IdInstytucji"/>
-				<xsl:with-param name="inline" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="count($instytucja/adr:Kontakt) &gt; 0">
-			<xsl:call-template name="PodmiotKontakt">
-				<xsl:with-param name="kontakt" select="$instytucja/adr:Kontakt"/>
-				<xsl:with-param name="inline" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="Podmioty">
-		<xsl:param name="podmiot" select="wnio:DaneDokumentu/str:Adresaci"/>
-		<xsl:param name="inline" select="'false'"/>
-		<xsl:for-each select="$podmiot/meta:Podmiot">
-			<xsl:if test="oso:Osoba">
-				<xsl:call-template name="PodmiotOsoba">
-					<xsl:with-param name="osoba" select="oso:Osoba"/>
-					<xsl:with-param name="inline" select="$inline"/>
-				</xsl:call-template>
-			</xsl:if>
-			<xsl:if test="inst:Instytucja">
-				<xsl:call-template name="PodmiotInstytucja">
-					<xsl:with-param name="instytucja" select="inst:Instytucja"/>
-					<xsl:with-param name="inline" select="$inline"/>
-				</xsl:call-template>
-			</xsl:if>
-		</xsl:for-each>
-	</xsl:template>
-	<xsl:template name="PodmiotJednostka">
-		<xsl:param name="jednostka"/>
-		<xsl:param name="inline"/>
-		<xsl:if test="string-length($jednostka/inst:NazwaInstytucji) &gt; 0">
-			<xsl:value-of select="$jednostka/inst:NazwaInstytucji"/>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="$jednostka/inst:Jednostka">
-			<xsl:call-template name="PodmiotJednostka">
-				<xsl:with-param name="jednostka" select="$jednostka/inst:Jednostka"/>
-				<xsl:with-param name="inline" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="Adres">
-		<xsl:param name="adres"/>
-		<xsl:param name="inline" select="'false'"/>
-		<xsl:if test="string-length($adres/adr:KodPocztowy) &gt; 0 or string-length($adres/adr:Miejscowosc) &gt; 0 or string-length($adres/adr:Poczta) &gt; 0">
-			<xsl:if test="string-length($adres/adr:KodPocztowy) &gt; 0">
-				<xsl:value-of select="$adres/adr:KodPocztowy"/>
-				<xsl:value-of select="' '"/>
-			</xsl:if>
-			<xsl:if test="string-length($adres/adr:Poczta) &gt; 0">
-				<xsl:value-of select="$adres/adr:Poczta"/>
-				<xsl:call-template name="InLine">
-					<xsl:with-param name="value" select="$inline"/>
-				</xsl:call-template>
-			</xsl:if>
-			<xsl:value-of select="$adres/adr:Miejscowosc"/>
-			<xsl:if test="string-length($adres/adr:Ulica) = 0">
-				<xsl:value-of select="' '"/>
-				<xsl:value-of select="$adres/adr:Budynek"/>
-				<xsl:if test="string-length($adres/adr:Budynek) &gt; 0">
-					<xsl:if test="string-length($adres/adr:Lokal) &gt; 0">
-						<xsl:value-of select="' '"/>/<xsl:value-of select="' '"/>
-						<xsl:value-of select="$adres/adr:Lokal"/>
-					</xsl:if>
+	
+<xsl:template name="adres">
+
+	<xsl:variable name = "PLA_miejsc" select = "//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/adr:Adres/adr:Miejscowosc"/>
+	<xsl:variable name = "PLA_poczta" select = "//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/adr:Adres/adr:Poczta"/>
+	<xsl:variable name = "PLA_ulica"><xsl:value-of select = "//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/adr:Adres/adr:Ulica"/></xsl:variable>
+	<xsl:variable name = "PLA_kodp">
+	<xsl:variable name = "kodp" select = "//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/adr:Adres/adr:KodPocztowy"/>
+			
+			 <xsl:choose>
+					<xsl:when test="substring($kodp,3,1)='-'">
+					 <xsl:value-of select = "$kodp"/>
+					</xsl:when>
+					<xsl:otherwise>
+					 <xsl:value-of select = "substring($kodp, 1, 2)"/>-<xsl:value-of select = "substring($kodp, 3, 3)"/>
+					</xsl:otherwise>
+			</xsl:choose>
+						
+	</xsl:variable>
+	<xsl:variable name = "PLA_nrdomu" select = "//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/adr:Adres/adr:Budynek"/>
+	<xsl:variable name = "PLA_nrlokalu" select = "//zn:Dokument/zn:DaneDokumentu/str:Adresaci/meta:Podmiot/oso:Osoba/adr:Adres/adr:Lokal"/>
+		
+	<xsl:variable name = "czlon_numer_domu_lokalu">
+				<xsl:value-of select = "$PLA_nrdomu"/>
+				<xsl:if test = "$PLA_nrlokalu != ''">
+				<xsl:value-of select = "concat('/', $PLA_nrlokalu)"/>
 				</xsl:if>
-			</xsl:if>
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-		</xsl:if>
-		<xsl:if test="string-length($adres/adr:Ulica) &gt; 0">
-			<xsl:value-of select="$adres/adr:Ulica"/>
-			<xsl:value-of select="' '"/>
-			<xsl:value-of select="$adres/adr:Budynek"/>
-			<xsl:if test="string-length($adres/adr:Lokal) &gt; 0">
-				<xsl:value-of select="' '"/>/<xsl:value-of select="' '"/>
-				<xsl:value-of select="$adres/adr:Lokal"/>
-			</xsl:if>
-		</xsl:if>
-		<xsl:if test="string-length($adres/adr:Wojewodztwo) &gt; 0">
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-			<xsl:value-of select="concat('Województwo: ',$adres/adr:Wojewodztwo)"/>
-		</xsl:if>
-		<xsl:if test="string-length($adres/adr:Powiat) &gt; 0">
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-			<xsl:value-of select="concat('Powiat: ',$adres/adr:Powiat)"/>
-		</xsl:if>
-		<xsl:if test="string-length($adres/adr:Gmina) &gt; 0">
-			<xsl:call-template name="InLine">
-				<xsl:with-param name="value" select="$inline"/>
-			</xsl:call-template>
-			<xsl:value-of select="concat('Gmina: ',$adres/adr:Gmina)"/>
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="InLine">
-		<xsl:param name="value" select="'true'"/>
+	</xsl:variable>
+				
+	<xsl:variable name = "czlon_kod_pocztowy">	
 		<xsl:choose>
-			<xsl:when test="$value='false'">
-				<br/>
+			<xsl:when test = "$PLA_poczta != ''">
+				<xsl:value-of select = "concat($PLA_kodp, concat(' ', $PLA_poczta))"/>
 			</xsl:when>
-			<xsl:otherwise>, </xsl:otherwise>
+			<xsl:otherwise>
+				<xsl:value-of select = "concat($PLA_kodp, concat(' ', $PLA_miejsc))"/>
+			</xsl:otherwise>
 		</xsl:choose>
-	</xsl:template>
-	<xsl:template name="Oswiadczenia">
-		<xsl:param name="oswiadczenia" select="wnio:TrescDokumentu/wnio:Oswiadczenia"/>
-		<xsl:if test="count($oswiadczenia/wnio:Oswiadczenie[string-length(text()) &gt; 0]) &gt; 0">
-			<div style="text-align: left;">
-				<h2 class="acc">Oświadczenia:</h2>
-				<xsl:for-each select="$oswiadczenia/wnio:Oswiadczenie[string-length(text()) &gt; 0]">
-					<p>
-						<span>
-							<xsl:value-of select="."/>
-						</span>
-					</p>
-				</xsl:for-each>
-			</div>
+	</xsl:variable>
+		
+	<xsl:variable name = "czlon_Adres">	
+		
+		<!-- 	<xsl:value-of select = "concat($ulica_miejscowosc, concat(' ', $czlon_numer_domu_lokalu))"/>	-->						
+		<xsl:variable name = "ulica_miejscowosc">
+			<xsl:choose>
+				<xsl:when test = "($PLA_ulica != '')">
+				<xsl:value-of select = "concat('ul. ', $PLA_ulica)"/>
+				</xsl:when>
+				<xsl:otherwise></xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+
+		<xsl:choose>
+		    <!-- miejscowosc jest, poczta jest, miejscowosc != poczta, ulica jest  -->
+			<xsl:when test = "($PLA_poczta != '') and ($PLA_miejsc != $PLA_poczta) and ($PLA_ulica != '')">
+				<xsl:value-of select = "concat($ulica_miejscowosc, concat(' ', concat($czlon_numer_domu_lokalu, concat(' ', $PLA_miejsc))))"/>
+			</xsl:when>
+			<!-- miejscowosc jest, poczta jest, miejscowosc != poczta, ulica pusta  -->
+			<xsl:when test = "($PLA_poczta != '') and ($PLA_miejsc != $PLA_poczta) and ($PLA_ulica = '')">
+				<xsl:value-of select = "concat($PLA_miejsc, concat(' ', $czlon_numer_domu_lokalu))"/>
+			</xsl:when>	
+			<!-- miejscowosc jest, poczta pusta, ulica pusta  -->
+			<xsl:when test = "($PLA_poczta = '') and ($PLA_miejsc != '')  and ($PLA_ulica = '')">
+				<!--  <xsl:value-of select = "concat($PLA_miejsc, concat(' ',$czlon_numer_domu_lokalu))"/>-->
+				<xsl:value-of select = "$czlon_numer_domu_lokalu"/>				
+			</xsl:when>
+			<!-- miejscowosc jest, poczta pusta, ulica jest  -->
+			<xsl:when test = "($PLA_poczta = '') and ($PLA_miejsc != '') and ($PLA_ulica != '')">
+				<xsl:value-of select = "concat($ulica_miejscowosc, concat(' ', $czlon_numer_domu_lokalu))"/>
+			</xsl:when>	
+			<!-- miejscowosc jest, poczta jest, miejscowosc = poczta, ulica jest  -->
+			<xsl:when test = "($PLA_poczta = $PLA_miejsc) and ($ulica_miejscowosc != '')">
+				<xsl:value-of select = "concat($ulica_miejscowosc, concat(' ', $czlon_numer_domu_lokalu))"/>
+			</xsl:when>
+			<!-- miejscowosc jest, poczta jest, miejscowosc = poczta, ulica pusta  -->
+			<xsl:when test = "($PLA_poczta = $PLA_miejsc) and ($ulica_miejscowosc = '')"></xsl:when>			
+		</xsl:choose>				
+								
+	</xsl:variable>
+						
+	<xsl:if test = "$czlon_Adres != ''"><xsl:value-of select = "$czlon_Adres"/><xsl:value-of select="concat('',' ')"/></xsl:if>
+	
+	<xsl:value-of select = "$czlon_kod_pocztowy"/> 
+	
+	<xsl:if test = "$czlon_Adres = ''"> <xsl:value-of select = "$czlon_numer_domu_lokalu"/></xsl:if>
+
+</xsl:template>
+
+
+	<xsl:variable name="hexDigits" select="'0123456789ABCDEF'" />
+	<xsl:template name="toHex">
+		<xsl:param name="decimalNumber" />
+		<xsl:if test="$decimalNumber &gt;= 16">
+			<xsl:call-template name="toHex">
+				<xsl:with-param name="decimalNumber" select="floor($decimalNumber div 16)" />
+			</xsl:call-template>
 		</xsl:if>
+		<xsl:value-of select="substring($hexDigits, ($decimalNumber mod 16) + 1, 1)" />
 	</xsl:template>
-	<xsl:template name="InformacjeDodatkowe">
-		<xsl:param name="informacje" select="wnio:TrescDokumentu/wnio:Informacje"/>
-		<xsl:for-each select="$informacje/wnio:Informacja">
-			<xsl:if test="string-length(.) &gt; 0">
-				<p style="text-align: justify;font-size: 11px;font-family: Verdana;line-height: 20px;">
-					<xsl:value-of select="."/>
-				</p>
-			</xsl:if>
-		</xsl:for-each>
-	</xsl:template>
-	<xsl:template name="DoWiadomosci">
-		<xsl:param name="dowiadomosci" select="wnio:TrescDokumentu/wnio:DoWiadomosci"/>
-		<xsl:if test="count($dowiadomosci/meta:Podmiot) &gt; 0">
-			<div style="text-align: left;">
-				<p style="font-size: 11px;font-family: Verdana;line-height: 20px;margin: 0px;padding:0px">Do wiadomości:</p>
-				<ol style="padding-top: 0px;margin-top: 0px;">
-					<xsl:for-each select="$dowiadomosci/meta:Podmiot">
-						<li>
-							<xsl:choose>
-								<xsl:when test="inst:Instytucja">
-									<xsl:call-template name="PodmiotInstytucja">
-										<xsl:with-param name="instytucja" select="inst:Instytucja"/>
-										<xsl:with-param name="inline" select="'true'"/>
-									</xsl:call-template>
-								</xsl:when>
-								<xsl:when test="oso:Osoba">
-									<xsl:call-template name="PodmiotOsoba">
-										<xsl:with-param name="osoba" select="oso:Osoba"/>
-										<xsl:with-param name="inline" select="'true'"/>
-									</xsl:call-template>
-								</xsl:when>
-							</xsl:choose>
-						</li>
-					</xsl:for-each>
-				</ol>
-			</div>
-		</xsl:if>
-	</xsl:template>
-	<xsl:template name="Upowaznienie">
-		<xsl:param name="upo" select="wnio:TrescDokumentu/wnio:Podpis"/>
-		<div align="right" style="text-align: right;font-size: 10px;font-family: Verdana;line-height: 20px;">
+
+	<xsl:template name="signature">
+		<p align="right"
+			style="text-align: right;font-size: 10px;font-family: Verdana;line-height: 25px;">
 			<table style="float: right;">
 				<tr>
 					<td style="width: 340px;">
-						<p align="center" style="text-align: center;font-size: 10px;font-family: Verdana;line-height: 20px;">
-							<xsl:if test="string-length($upo/wnio:ZUpowaznienia) &gt; 0">
-								Z upoważnienia
-								<xsl:value-of select="' '"/>
-								<xsl:value-of select="$upo/wnio:ZUpowaznienia"/>
-								<br/>
-							</xsl:if>
-							<xsl:value-of select="$upo/oso:Imie"/>
-							<xsl:for-each select="$upo/oso:ImieDrugie">
-								<xsl:value-of select="' '"/>
-								<xsl:value-of select="."/>
-							</xsl:for-each>
-							<xsl:for-each select="$upo/oso:Nazwisko">
-								<xsl:value-of select="' '"/>
-								<xsl:value-of select="."/>
-							</xsl:for-each>
-							<xsl:if test="string-length($upo/wnio:Stanowisko) &gt; 0">
-								<br/>
-								<xsl:value-of select="$upo/wnio:Stanowisko"/>
-							</xsl:if>
-						</p>
-					</td>
-				</tr>
-			</table>
-			<div style="clear: both;"/>
-		</div>
-	</xsl:template>
-	<xsl:template name="Podpis">
-		<div align="right" style="text-align: right;font-size: 10px;font-family: Verdana;line-height: 20px;">
-			<table style="float: right;">
-				<tr>
-					<td style="width: 340px;">
-						<h2 class="acc">Podpisy elektroniczne</h2>
-						<p align="center" style="text-align: center;font-size: 10px;font-family: Verdana;line-height: 20px;">
+						<p align="center"
+							style="text-align: center;font-size: 10px;font-family: Verdana;line-height: 25px;">
 							<xsl:choose>
-								<xsl:when test="string-length(//wnio:Dokument/ds:Signature/ds:SignatureValue) &gt; 0">
+								<xsl:when
+									test="string-length(//zn:Dokument/ds:Signature/ds:SignatureValue) &gt; 0">
 									<xsl:text>Dokument został podpisany, aby go zweryfikować należy użyć oprogramowania do weryfikacji podpisu</xsl:text>
 									<xsl:choose>
-										<xsl:when test="count(//wnio:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime']) &gt; 1">
-											<br/>
+										<xsl:when
+											test="count(//zn:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime']) &gt; 1">
+											<br />
 											<xsl:text>Daty złożenia podpisu: </xsl:text>
-											<xsl:for-each select="//wnio:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime']">
-												<xsl:value-of select="."/>
+											<xsl:for-each
+												select="//zn:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime']">
+												<xsl:value-of select="." />
 											</xsl:for-each>
 										</xsl:when>
-										<xsl:when test="count(//wnio:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime']) = 1">
-											<br/>
+										<xsl:when
+											test="count(//zn:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime']) = 1">
+											<br />
 											<xsl:text>Data złożenia podpisu: </xsl:text>
-											<xsl:for-each select="//wnio:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime']">
-												<xsl:value-of select="."/>
+											<xsl:for-each
+												select="//zn:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime']">
+												<xsl:value-of select="." />
 											</xsl:for-each>
 										</xsl:when>
-										<xsl:when test="0 &gt;= count(//wnio:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime'])">
+										<xsl:when
+											test="0 &gt;= count(//zn:Dokument/ds:Signature/ds:Object/descendant::*[local-name() = 'SigningTime'])">
 										</xsl:when>
 									</xsl:choose>
 								</xsl:when>
@@ -544,7 +356,7 @@
 									<xsl:text>Dokument nie zawiera podpisu</xsl:text>
 								</xsl:otherwise>
 							</xsl:choose>
-							<br/>
+							<br />
 							<span style="font-size: 7pt;font-weight: bold;">
 								Podpis elektroniczny
 							</span>
@@ -552,30 +364,7 @@
 					</td>
 				</tr>
 			</table>
-		</div>
-		<div style="clear: both;"/>
-	</xsl:template>
-	<xsl:template name="RodzajDokumentu">
-		<xsl:param name="rodzaj" select="wnio:TrescDokumentu/wnio:RodzajWnioskuRozszerzony/@rodzaj"/>
-		<xsl:param name="jakiInny" select="wnio:TrescDokumentu/wnio:RodzajWnioskuRozszerzony/@jakiInny"/>
-		<!-- jesli typ predefiniowany, wypisz -->
-		<xsl:if test="$rodzaj != 'inne pismo'">
-			<h2 style="text-align: center; font-size: 12px; line-height: 20px; text-transform: uppercase; font-weight: normal;">
-				<xsl:value-of select="$rodzaj"/>
-			</h2>
-		</xsl:if>
-		<!-- jesli 'inne pismo' i podano jakie, wypisz -->
-		<xsl:if test="$rodzaj = 'inne pismo' and $jakiInny != ''">
-			<h2 style="text-align: center; font-size: 12px; line-height: 20px; text-transform: uppercase; font-weight: normal;">
-				<xsl:value-of select="$jakiInny"/>
-			</h2>
-		</xsl:if>
-		<!-- w przeciwnym razie bez h1 -->
-	</xsl:template>
-	<xsl:template name="TytulDokumentu">
-		<xsl:param name="tytul" select="wnio:TrescDokumentu/wnio:Tytul"/>
-		<h3 style="text-align: center;font-size: 12px; line-height: 20px; font-weight: normal;">
-			<xsl:value-of select="$tytul"/>
-		</h3>
+		</p>
+		<div style="clear: both;" />
 	</xsl:template>
 </xsl:stylesheet>
