@@ -17,6 +17,7 @@
 		</xsl:if>
 	</xsl:template>
 
+	<!-- ROOT -->
 	<xsl:template match="/">
 		<html>
 			<head>
@@ -28,7 +29,7 @@
 					h2 { background:#e6f2ff; padding:4px 10px; border-radius:5px; margin-top:25px; }
 					table { border-collapse: collapse; width: 100%; margin-bottom: 20px; box-shadow: 0 0 5px #ccc;}
 					th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
-					th {  width: 30%; }
+					th { width: 30%; background:#f5f5f5; }
 					.signature { border:1px solid #888; padding:10px; background:#fafafa; display:inline-block; margin-top:5px; }
 					.signature img { max-width:400px; display:block; margin-bottom:5px; }
 					.sig-date { font-size:12px; color:#555; text-align:center; }
@@ -44,6 +45,7 @@
 		</html>
 	</xsl:template>
 
+	<!-- KARTA EPO -->
 	<xsl:template match="mstns:KartaEpo">
 
 		<h2>Dane ogólne</h2>
@@ -56,6 +58,12 @@
 					</xsl:call-template>
 				</td>
 			</tr>
+			<tr>
+				<th>Id karty EPO</th>
+				<td>
+					<xsl:value-of select="mstns:IdKartyEPO"/>
+				</td>
+			</tr>
 		</table>
 
 		<xsl:apply-templates select="mstns:Przesylka"/>
@@ -66,25 +74,23 @@
 	<!-- PRZESYŁKA -->
 	<xsl:template match="mstns:Przesylka">
 
+		<h2>Dane przesyłki</h2>
+
 		<table>
 
-			<xsl:if test="string-length(normalize-space(mstns:IdPrzesylki)) &gt; 0">
-				<tr>
-					<th>Id przesyłki</th>
-					<td>
-						<xsl:value-of select="mstns:IdPrzesylki"/>
-					</td>
-				</tr>
-			</xsl:if>
+			<tr>
+				<th>Id przesyłki</th>
+				<td>
+					<xsl:value-of select="mstns:IdPrzesylki"/>
+				</td>
+			</tr>
 
-			<xsl:if test="string-length(normalize-space(mstns:NumerNadania)) &gt; 0">
-				<tr>
-					<th>Numer nadania</th>
-					<td>
-						<xsl:value-of select="mstns:NumerNadania"/>
-					</td>
-				</tr>
-			</xsl:if>
+			<tr>
+				<th>Numer nadania</th>
+				<td>
+					<xsl:value-of select="mstns:NumerNadania"/>
+				</td>
+			</tr>
 
 			<tr>
 				<th>Data nadania</th>
@@ -95,16 +101,14 @@
 				</td>
 			</tr>
 
-			<xsl:if test="string-length(normalize-space(mstns:DataPisma)) &gt; 0">
-				<tr>
-					<th>Data pisma</th>
-					<td>
-						<xsl:call-template name="format-date">
-							<xsl:with-param name="datetime" select="mstns:DataPisma"/>
-						</xsl:call-template>
-					</td>
-				</tr>
-			</xsl:if>
+			<tr>
+				<th>Data pisma</th>
+				<td>
+					<xsl:call-template name="format-date">
+						<xsl:with-param name="datetime" select="mstns:DataPisma"/>
+					</xsl:call-template>
+				</td>
+			</tr>
 
 			<tr>
 				<th>Adresat</th>
@@ -114,8 +118,6 @@
 					<xsl:value-of select="mstns:Adresat/mstns:Ulica"/>
 					<xsl:text> </xsl:text>
 					<xsl:value-of select="mstns:Adresat/mstns:NumerDomu"/>
-					<xsl:text>/</xsl:text>
-					<xsl:value-of select="mstns:Adresat/mstns:NumerLokalu"/>
 					<br/>
 					<xsl:value-of select="mstns:Adresat/mstns:KodPocztowy"/>
 					<xsl:text> </xsl:text>
@@ -164,86 +166,88 @@
 
 	</xsl:template>
 
-
-	<!-- PODPIS -->
+	<!-- PODPIS / ZWROT -->
 	<xsl:template match="mstns:PrzesylkaPodpis">
 
-		<h2>Informacje o doręczeniu</h2>
+		<xsl:variable name="adnotacja"
+            select="mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:AdnotacjaOperatora"/>
 
-		<table>
+		<xsl:choose>
 
-			<tr>
-				<th>Rodzaj doręczenia</th>
-				<td>
-					<xsl:value-of select="mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:AdnotacjaOperatora/mstns:RodzajDoreczenie"/>
-				</td>
-			</tr>
+			<!-- ZWROT -->
+			<xsl:when test="string-length(normalize-space($adnotacja/mstns:RodzajZwrot)) &gt; 0">
 
-			<tr>
-				<th>Podmiot doręczenia</th>
-				<td>
-					<xsl:value-of select="mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:AdnotacjaOperatora/mstns:PodmiotDoreczenia"/>
-				</td>
-			</tr>
+				<h2>Informacje o zwrocie</h2>
 
-			<xsl:if test="string-length(normalize-space(mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:AdnotacjaOperatora/mstns:TrescAdnotacji)) &gt; 0">
-				<tr>
-					<th>Odbiorca</th>
-					<td>
-						<xsl:value-of select="mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:AdnotacjaOperatora/mstns:TrescAdnotacji"/>
-					</td>
-				</tr>
-			</xsl:if>
+				<table>
 
-			<tr>
-				<th>Data doręczenia</th>
-				<td>
-					<xsl:call-template name="format-date">
-						<xsl:with-param name="datetime" select="mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:DataZdarzenia"/>
-					</xsl:call-template>
-				</td>
-			</tr>
+					<tr>
+						<th>Powód zwrotu</th>
+						<td>
+							<xsl:value-of select="$adnotacja/mstns:PowodZwrotu"/>
+						</td>
+					</tr>
 
-		</table>
+					<tr>
+						<th>Data zwrotu</th>
+						<td>
+							<xsl:call-template name="format-date">
+								<xsl:with-param name="datetime"
+                                    select="mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:DataZdarzenia"/>
+							</xsl:call-template>
+						</td>
+					</tr>
+				</table>
 
-		<div class="signature">
-			<strong>Podpis odbiorcy:</strong>
+			</xsl:when>
 
-			<xsl:if test="string-length(normalize-space(mstns:PodpisObraz)) &gt; 0">
-				<img>
-					<xsl:attribute name="src">
-						<xsl:text>data:image/png;base64,</xsl:text>
-						<xsl:value-of select="mstns:PodpisObraz"/>
-					</xsl:attribute>
-				</img>
-			</xsl:if>
+			<!-- DORĘCZENIE -->
+			<xsl:otherwise>
 
-			<xsl:if test="mstns:DaneBiometryczne/mstns:DataPodpisu">
-				<div class="sig-date">
-					Data podpisu:
-					<xsl:call-template name="format-date">
-						<xsl:with-param name="datetime" select="mstns:DaneBiometryczne/mstns:DataPodpisu"/>
-					</xsl:call-template>
-				</div>
-			</xsl:if>
+				<h2>Informacje o doręczeniu</h2>
 
-		</div>
+				<table>
+					<tr>
+						<th>Rodzaj doręczenia</th>
+						<td>
+							<xsl:value-of select="$adnotacja/mstns:RodzajDoreczenie"/>
+						</td>
+					</tr>
 
-		<!--<h2>Podpis cyfrowy</h2>
-		<table>
-			<tr>
-				<th>Certyfikat (Subject)</th>
-				<td>
-					<xsl:value-of select="mstns:PodpisCyfrowy/ds:Signature/ds:KeyInfo/ds:X509Data/ds:X509SubjectName"/>
-				</td>
-			</tr>
-			<tr>
-				<th>Signing Time</th>
-				<td>
-					<xsl:value-of select="mstns:PodpisCyfrowy/ds:Signature/ds:Object//*[local-name()='SigningTime']"/>
-				</td>
-			</tr>
-		</table>-->
+					<tr>
+						<th>Podmiot doręczenia</th>
+						<td>
+							<xsl:value-of select="$adnotacja/mstns:PodmiotDoreczenia"/>
+						</td>
+					</tr>
+
+					<tr>
+						<th>Data doręczenia</th>
+						<td>
+							<xsl:call-template name="format-date">
+								<xsl:with-param name="datetime"
+                                    select="mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:DataZdarzenia"/>
+							</xsl:call-template>
+						</td>
+					</tr>
+				</table>
+
+				<xsl:if test="string-length(normalize-space(mstns:PodpisObraz)) &gt; 0">
+					<div class="signature">
+						<strong>Podpis odbiorcy:</strong>
+
+						<img>
+							<xsl:attribute name="src">
+								<xsl:text>data:image/png;base64,</xsl:text>
+								<xsl:value-of select="mstns:PodpisObraz"/>
+							</xsl:attribute>
+						</img>
+					</div>
+				</xsl:if>
+
+			</xsl:otherwise>
+
+		</xsl:choose>
 
 	</xsl:template>
 
