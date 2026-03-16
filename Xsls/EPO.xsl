@@ -220,6 +220,15 @@
 							<xsl:value-of select="$adnotacja/mstns:PodmiotDoreczenia"/>
 						</td>
 					</tr>
+					
+			<xsl:if test="string-length(normalize-space(mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:AdnotacjaOperatora/mstns:TrescAdnotacji)) &gt; 0">
+				<tr>
+					<th>Odbiorca</th>
+					<td>
+						<xsl:value-of select="mstns:AdnotacjaKoncowa/mstns:PrzesylkaAdnotacja/mstns:AdnotacjaOperatora/mstns:TrescAdnotacji"/>
+					</td>
+				</tr>
+			</xsl:if>
 
 					<tr>
 						<th>Data doręczenia</th>

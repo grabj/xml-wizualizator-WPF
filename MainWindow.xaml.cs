@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace XmlWizualizator
 {
@@ -25,6 +27,7 @@ namespace XmlWizualizator
                 _viewModel.PropertyChanged += ViewModel_PropertyChanged;
                 _viewModel.PrintRequested += ViewModel_PrintRequested;
                 _viewModel.PrintPreviewRequested += ViewModel_PrintPreviewRequested;
+                _viewModel.BatchPdfRequested += ViewModel_BatchPdfRequested;
             }
         }
 
@@ -44,7 +47,7 @@ namespace XmlWizualizator
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Błąd inicjalizacji WebView2: {ex.Message}", 
+                System.Windows.MessageBox.Show($"Błąd inicjalizacji WebView2: {ex.Message}", 
                     "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -98,6 +101,76 @@ namespace XmlWizualizator
             webView.CoreWebView2InitializationCompleted += Handler;
         }
 
+        private async void ViewModel_BatchPdfRequested(object? sender, BatchPdfRequestEventArgs e)
+        {
+            if (e == null || e.Items == null || e.Items.Count == 0)
+                return;
+
+            if (webView?.CoreWebView2 == null)
+            {
+                System.Windows.MessageBox.Show("WebView2 nie jest zainicjalizowany. Spróbuj ponownie.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            int success = 0;
+            int fail = 0;
+            var errors = new System.Text.StringBuilder();
+
+            // Sekwencyjnie renderuj i drukuj do PDF
+            foreach (var (html, outputPath) in e.Items)
+            {
+                try
+                {
+                    var tcs = new TaskCompletionSource<bool>();
+
+                    void NavigationHandler(object? s, CoreWebView2NavigationCompletedEventArgs args)
+                    {
+                        tcs.TrySetResult(args.IsSuccess);
+                        webView.NavigationCompleted -= NavigationHandler;
+                    }
+
+                    webView.NavigationCompleted += NavigationHandler;
+                    webView.NavigateToString(html);
+
+                    // czekaj na zakończenie nawigacji (timeout w razie potrzeby)
+                    var navSuccess = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(10))) == tcs.Task && tcs.Task.Result;
+                    if (!navSuccess)
+                    {
+                        throw new Exception("Nawigacja do treści HTML nie powiodła się lub przekroczono limit czasu.");
+                    }
+
+                    var printSettings = webView.CoreWebView2.Environment.CreatePrintSettings();
+                    printSettings.ShouldPrintBackgrounds = true;
+                    printSettings.ShouldPrintHeaderAndFooter = false;
+
+                    bool pdfOk = await webView.CoreWebView2.PrintToPdfAsync(outputPath, printSettings);
+                    if (!pdfOk)
+                        throw new Exception("PrintToPdfAsync zwrócił false.");
+
+                    success++;
+                    _viewModel!.StatusMessage = $"Zapisano PDF: {System.IO.Path.GetFileName(outputPath)}";
+                }
+                catch (Exception ex)
+                {
+                    fail++;
+                    errors.AppendLine($"• {System.IO.Path.GetFileName(outputPath)}: {ex.Message}");
+                }
+            }
+
+            var summary = $"Konwersja zakończona. Sukces: {success}, Błędy: {fail}";
+            if (fail > 0)
+            {
+                summary += $"{Environment.NewLine}{Environment.NewLine}Szczegóły błędów:{Environment.NewLine}{errors}";
+                System.Windows.MessageBox.Show(summary, "Konwersja do PDF - zakończono", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+                System.Windows.MessageBox.Show(summary, "Konwersja do PDF - zakończono", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+            _viewModel!.StatusMessage = summary;
+        }
+
         private async void PrintWebView()
         {
             try
@@ -136,8 +209,7 @@ namespace XmlWizualizator
                         {
                             _viewModel.StatusMessage = $"PDF zapisany: {System.IO.Path.GetFileName(saveFileDialog.FileName)}";
                             
-                            // Opcjonalnie: zapytaj czy otworzyć plik
-                            var result = MessageBox.Show(
+                            var result = System.Windows.MessageBox.Show(
                                 $"Plik PDF został zapisany:{Environment.NewLine}{saveFileDialog.FileName}{Environment.NewLine}{Environment.NewLine}Czy chcesz otworzyć plik?",
                                 "PDF zapisany",
                                 MessageBoxButton.YesNo,
@@ -155,7 +227,7 @@ namespace XmlWizualizator
                         else if (_viewModel != null)
                         {
                             _viewModel.StatusMessage = "Błąd podczas zapisywania PDF";
-                            MessageBox.Show(
+                            System.Windows.MessageBox.Show(
                                 "Nie udało się zapisać pliku PDF.",
                                 "Błąd",
                                 MessageBoxButton.OK,
@@ -169,7 +241,7 @@ namespace XmlWizualizator
                 }
                 else
                 {
-                    MessageBox.Show(
+                    System.Windows.MessageBox.Show(
                         "WebView2 nie jest jeszcze zainicjalizowany.",
                         "Błąd",
                         MessageBoxButton.OK,
@@ -178,7 +250,7 @@ namespace XmlWizualizator
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                System.Windows.MessageBox.Show(
                     $"Błąd podczas zapisywania PDF:{Environment.NewLine}{Environment.NewLine}{ex.Message}",
                     "Błąd zapisu",
                     MessageBoxButton.OK,
@@ -207,7 +279,7 @@ namespace XmlWizualizator
                 }
                 else
                 {
-                    MessageBox.Show(
+                    System.Windows.MessageBox.Show(
                         "WebView2 nie jest jeszcze zainicjalizowany.",
                         "Błąd",
                         MessageBoxButton.OK,
@@ -216,7 +288,7 @@ namespace XmlWizualizator
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
+                System.Windows.MessageBox.Show(
                     $"Błąd podczas otwierania podglądu:{Environment.NewLine}{Environment.NewLine}{ex.Message}",
                     "Błąd podglądu",
                     MessageBoxButton.OK,
@@ -245,6 +317,7 @@ namespace XmlWizualizator
                 _viewModel.PropertyChanged -= ViewModel_PropertyChanged;
                 _viewModel.PrintRequested -= ViewModel_PrintRequested;
                 _viewModel.PrintPreviewRequested -= ViewModel_PrintPreviewRequested;
+                _viewModel.BatchPdfRequested -= ViewModel_BatchPdfRequested;
             }
             base.OnClosed(e);
         }
