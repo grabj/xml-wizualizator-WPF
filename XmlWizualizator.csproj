@@ -7,6 +7,10 @@
 		<UseWindowsForms>true</UseWindowsForms>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
+		<ApplicationIcon>ikona_muflon.ico</ApplicationIcon>
+		<AssemblyName>Muflon-X</AssemblyName>
+		<AssemblyTitle>Muflon-X</AssemblyTitle>
+		<AssemblyProduct>Muflon-X by OI-IX</AssemblyProduct>
 	</PropertyGroup>
 
 	<ItemGroup>
