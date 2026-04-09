@@ -1,35 +1,58 @@
-<?xml version="1.0" encoding="UTF-8"?><xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:tns="http://crd.gov.pl/wzor/2025/06/25/13775/" version="1.0">
-		<xsl:import href="./ksef/WspolneSzablonyWizualizacji_v12-0E.xsl"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:tns="http://crd.gov.pl/wzor/2025/06/25/13775/" version="1.0">
+	<xsl:import href="./ksef/WspolneSzablonyWizualizacji_v12-0E.xsl"/>
 	<xsl:output method="html" encoding="UTF-8" indent="yes" version="4.01" doctype-public="-//W3C//DTD HTML 4.01//EN" doctype-system="http://www.w3.org/TR/html4/strict.dtd"/>
 	<xsl:template name="TytulDokumentu">
-		  e-FAKTURA KSeF
-   	</xsl:template>
+		e-FAKTURA KSeF
+	</xsl:template>
 	<xsl:template name="StyleDlaFormularza">
 		<style type="text/css">
-      
-    .tlo-formularza { background-color:#D3D3D3; }
-    table.wrapping, .break-word {
-    white-space: normal !important;
-    word-wrap: break-word;
-	}
-   
-	table {
-    width:100%;
-	}
- 
-	.word-break {
-    width:100%;
-    word-break: break-all;
-	}
-	
-	.tlo-zalacznika {
-	background-color: #D3D3D3;
-	}
+			@media print {
+				@page {
+				margin: 5;
+				}
+				html, body {
+				margin: 5 !important;
+				padding: 0 !important;
+				}
+				body {
+				background-repeat: no-repeat;
+				background-size: cover;
+				background-position: center;
+				-webkit-print-color-adjust: exact;
+				print-color-adjust: exact;
+				}
+			}
 
-    .lewa {	border: 1px solid black; font-size: 1.2em; padding: 1px; vertical-align: top; text-align: left;}
-    .srodek { border: 1px solid black; font-size: 1.2em; padding: 1px; vertical-align: top; text-align: center;}
-    .prawa { border: 1px solid black; font-size: 1.2em; padding: 1px; vertical-align: top; text-align: right;}
-   </style>
+			.tlo-formularza { background-color:#D3D3D3; }
+			table.wrapping, .break-word {
+			white-space: normal !important;
+			word-wrap: break-word;
+			}
+
+			table {
+			width:100%;
+			font-size: 0.8em;
+			}
+
+			.word-break {
+			width:100%;
+			word-break: break-all;
+			}
+
+			.tlo-zalacznika {
+			background-color: #D3D3D3;
+			}
+
+			.niewypelniane{
+			font-size: 0.85em
+
+			}
+
+			.lewa {	border: 1px solid black; font-size: 1em; padding: 1px; vertical-align: top; text-align: left;}
+			.srodek { border: 1px solid black; font-size: 1em; padding: 1px; vertical-align: top; text-align: center;}
+			.prawa { border: 1px solid black; font-size: 1em; padding: 1px; vertical-align: top; text-align: right;}
+		</style>
 	</xsl:template>
 	<xsl:template match="tns:Faktura">
 		<div class="deklaracja">
@@ -41,11 +64,14 @@
 								<xsl:value-of select="tns:Naglowek/tns:KodFormularza"/>
 							</span>
 							<xsl:text> </xsl:text>
-							<span class="wariant">(<xsl:value-of select="tns:Naglowek/tns:WariantFormularza"/>)</span>
+							<span class="wariant">
+								(<xsl:value-of select="tns:Naglowek/tns:WariantFormularza"/>)
+							</span>
 						</td>
 					</tr>
 					<tr>
-						<td class="etykieta">Kod systemowy <b>
+						<td class="etykieta">
+							Kod systemowy <b>
 								<xsl:value-of select="tns:Naglowek/tns:KodFormularza/@kodSystemowy"/>
 							</b>
 						</td>
@@ -109,7 +135,9 @@
 	</xsl:template>
 	<xsl:template name="NaglowekTytulowyKSeF">
 		<div style="text-align:left">
-			<b>Krajowy System <font style="color:red">e</font>-Faktur (KS<font style="color:red">e</font>F)</b>
+			<b>
+				Krajowy System <font style="color:red">e</font>-Faktur (KS<font style="color:red">e</font>F)
+			</b>
 		</div>
 	</xsl:template>
 	<xsl:template name="SystemTeleinfor">
@@ -124,8 +152,9 @@
 		<xsl:if test="tns:Naglowek/tns:SystemInfo">
 			<table class="break-word">
 				<tr>
-					<td>Nazwa systemu teleinformatycznego, z którego korzysta podatnik: 
-					<b>
+					<td>
+						Nazwa systemu teleinformatycznego, z którego korzysta podatnik:
+						<b>
 							<xsl:value-of select="tns:Naglowek/tns:SystemInfo"/>
 						</b>
 					</td>
@@ -145,23 +174,24 @@
 			</tr>
 			<tr>
 				<td>
-					Kolejny numer faktury, nadany w ramach jednej lub więcej serii, który w sposób jednoznaczny identyfikuje fakturę: 
-				<b>
+					Kolejny numer faktury, nadany w ramach jednej lub więcej serii, który w sposób jednoznaczny identyfikuje fakturę:
+					<b>
 						<xsl:value-of select="tns:Fa/tns:P_2"/>
 					</b>
 				</td>
 			</tr>
 			<tr>
 				<td>
-				Data wystawienia, z zastrzeżeniem art. 106na ust. 1 ustawy: 
-				<b>
+					Data wystawienia, z zastrzeżeniem art. 106na ust. 1 ustawy:
+					<b>
 						<xsl:value-of select="tns:Fa/tns:P_1"/>
 					</b>
 				</td>
 			</tr>
 			<xsl:if test="tns:Fa/tns:P_1M">
 				<tr>
-					<td>Miejsce wystawienia faktury: 
+					<td>
+						Miejsce wystawienia faktury:
 						<b>
 							<xsl:value-of select="tns:Fa/tns:P_1M"/>
 						</b>
@@ -171,8 +201,8 @@
 			<tr>
 				<td>
 					<xsl:if test="tns:Fa/tns:P_6">
-					Data dokonania lub zakończenia dostawy towarów lub wykonania usługi lub data otrzymania zapłaty, o której mowa w art. 106b ust. 1 pkt 4 ustawy, o ile taka data jest określona i różni się od daty wystawienia faktury. Pole wypełnia się w przypadku, gdy dla wszystkich pozycji faktury data jest wspólna:
-					<b>
+						Data dokonania lub zakończenia dostawy towarów lub wykonania usługi lub data otrzymania zapłaty, o której mowa w art. 106b ust. 1 pkt 4 ustawy, o ile taka data jest określona i różni się od daty wystawienia faktury. Pole wypełnia się w przypadku, gdy dla wszystkich pozycji faktury data jest wspólna:
+						<b>
 							<xsl:value-of select="tns:Fa/tns:P_6"/>
 						</b>
 					</xsl:if>
@@ -191,16 +221,18 @@
 			</tr>
 			<xsl:if test="tns:Fa/tns:FP = '1'">
 				<tr>
-					<td>Faktura, o której mowa w art. 109 ust. 3d ustawy: 
-				<input type="checkbox" checked="checked" disabled="disabled"/>
+					<td>
+						Faktura, o której mowa w art. 109 ust. 3d ustawy:
+						<input type="checkbox" checked="checked" disabled="disabled"/>
 						<b>1. Tak</b>
 					</td>
 				</tr>
 			</xsl:if>
 			<xsl:if test="tns:Fa/tns:TP = '1'">
 				<tr>
-					<td>Istniejące powiązania między nabywcą a dokonującym dostawy towarów lub usługodawcą, zgodnie z § 10 ust. 4 pkt 3, z zastrzeżeniem ust. 4b rozporządzenia w sprawie szczegółowego zakresu danych zawartych w deklaracjach podatkowych i w ewidencji w zakresie podatku od towarów i usług: 
-			<input type="checkbox" checked="checked" disabled="disabled"/>
+					<td>
+						Istniejące powiązania między nabywcą a dokonującym dostawy towarów lub usługodawcą, zgodnie z § 10 ust. 4 pkt 3, z zastrzeżeniem ust. 4b rozporządzenia w sprawie szczegółowego zakresu danych zawartych w deklaracjach podatkowych i w ewidencji w zakresie podatku od towarów i usług:
+						<input type="checkbox" checked="checked" disabled="disabled"/>
 						<b>1. Tak</b>
 					</td>
 				</tr>
@@ -505,11 +537,11 @@
 					<xsl:text>Faktura dotyczy jednostki podrzędniej JST: </xsl:text>
 					<xsl:choose>
 						<xsl:when test="tns:Podmiot2/tns:JST = '1'">
-								Tak
-							</xsl:when>
+							Tak
+						</xsl:when>
 						<xsl:when test="tns:Podmiot2/tns:JST = '2'">
-								Nie
-							</xsl:when>
+							Nie
+						</xsl:when>
 					</xsl:choose>
 				</td>
 			</tr>
@@ -519,11 +551,11 @@
 					<xsl:text>Faktura dotyczy członka GV: </xsl:text>
 					<xsl:choose>
 						<xsl:when test="tns:Podmiot2/tns:GV = '1'">
-								Tak
-							</xsl:when>
+							Tak
+						</xsl:when>
 						<xsl:when test="tns:Podmiot2/tns:GV = '2'">
-								Nie
-							</xsl:when>
+							Nie
+						</xsl:when>
 					</xsl:choose>
 				</td>
 			</tr>
@@ -537,7 +569,8 @@
 					<td style="width:50%"/>
 					<td style="width:50%">
 						<br/>
-						<b>Podmiot trzeci <xsl:number value="position()" format="(1) "/>
+						<b>
+							Podmiot trzeci <xsl:number value="position()" format="(1) "/>
 						</b>
 					</td>
 				</tr>
@@ -966,73 +999,73 @@
 	<xsl:template name="FakturaWiersze">
 		<br/>
 		<xsl:if test="tns:Fa/tns:FaWiersz">
-			<table class="white-space">
+			<table class="white-space break-word">
 				<tr>
-					<td class="niewypelniane">Numer wiersza faktury</td>
-					<td class="niewypelniane">Uniwersalny unikalny numer wiersza faktury</td>
+					<td class="niewypelniane" maxwidth="50">Numer wiersza faktury</td>
+					<td class="niewypelniane" maxwidth="50">Unikalny numer wiersza faktury</td>
 					<td class="niewypelniane">Nazwa (rodzaj) towaru lub usługi</td>
-					<td class="niewypelniane">Indeks</td>
-					<td class="niewypelniane">Jednostka miary</td>
-					<td class="niewypelniane">Ilość</td>
-					<td class="niewypelniane">Cena jednostkowa</td>
-					<td class="niewypelniane">Opusty i obniżki cen</td>
-					<td class="niewypelniane">Wartość sprzedaży</td>
-					<td class="niewypelniane">Kwota VAT</td>
-					<td class="niewypelniane">Stawka podatku</td>
-					<td class="niewypelniane">Stawka podatku od wartości dodanej</td>
-					<td class="niewypelniane">Data dokonania lub zakończenia dostawy towarów lub wykonania usługi lub data otrzymania zapłaty</td>
-					<td class="niewypelniane">Klasyfikacja</td>
-					<td class="niewypelniane">Kwota podatku akcyzowego zawarta w cenie towaru</td>
-					<td class="niewypelniane">Oznaczenie dotyczące dostawy towarów i świadczenia usług lub procedury</td>
-					<td class="niewypelniane">Kurs waluty z Działu VI ustawy</td>
-					<td class="niewypelniane">Znacznik dla towaru lub usługi z załącznika nr 15 do ustawy</td>
-					<td class="niewypelniane">Znacznik stanu przed korektą</td>
+					<td class="niewypelniane" maxwidth="50">Indeks</td>
+					<td class="niewypelniane" maxwidth="100">Jedno- stka miary</td>
+					<td class="niewypelniane" maxwidth="100">Ilość</td>
+					<td class="niewypelniane" maxwidth="100">Cena jedno- stkowa</td>
+					<td class="niewypelniane" maxwidth="100">Opusty i obniżki cen</td>
+					<td class="niewypelniane" maxwidth="100">Wartość sprzedaży</td>
+					<td class="niewypelniane" maxwidth="100">Kwota VAT</td>
+					<td class="niewypelniane" maxwidth="100">Stawka podatku</td>
+					<td class="niewypelniane" maxwidth="100">Stawka podatku od wartości dodanej</td>
+					<td class="niewypelniane" maxwidth="100">Data dokonania lub zakończenia dostawy towarów lub wykonania usługi lub data otrzymania zapłaty</td>
+					<td class="niewypelniane" maxwidth="10">Klasyfi- kacja</td>
+					<td class="niewypelniane" maxwidth="10">Kwota podatku akcyz- owego zawarta w cenie towaru</td>
+					<td class="niewypelniane" maxwidth="10">Oznaczenie dotyczące dostawy towarów i świadczenia usług lub procedury</td>
+					<td class="niewypelniane" maxwidth="10">Kurs waluty z Działu VI ustawy</td>
+					<td class="niewypelniane" maxwidth="10">Znacznik dla towaru lub usługi z załącznika nr 15 do ustawy</td>
+					<td class="niewypelniane" maxwidth="10">Znacznik stanu przed korektą</td>
 				</tr>
 				<xsl:for-each select="tns:Fa/tns:FaWiersz">
 					<tr>
-						<td class="srodek" width="auto">
+						<td class="srodek" width="auto" maxwidth="100">
 							<xsl:value-of select="tns:NrWierszaFa"/>
 						</td>
-						<td class="lewa" width="auto">
+						<td class="lewa" width="auto" maxwidth="100">
 							<xsl:value-of select="tns:UU_ID"/>
 						</td>
 						<td class="lewa" width="auto">
 							<xsl:value-of select="tns:P_7"/>
 						</td>
-						<td class="lewa" width="auto">
+						<td class="lewa" width="auto" maxwidth="50">
 							<xsl:value-of select="tns:Indeks"/>
 						</td>
-						<td class="lewa" width="auto">
+						<td class="lewa" width="auto" maxwidth="100">
 							<xsl:value-of select="tns:P_8A"/>
 						</td>
-						<td class="prawa" width="auto">
+						<td class="prawa" width="auto" maxwidth="100">
 							<xsl:value-of select="tns:P_8B"/>
 						</td>
-						<td class="prawa" width="auto">
+						<td class="prawa" width="auto" maxwidth="100">
 							<xsl:if test="tns:P_9A">
 								<xsl:value-of select="tns:P_9A"/> netto
-								</xsl:if>
+							</xsl:if>
 							<xsl:if test="tns:P_9B">
 								<br/>
 								<xsl:value-of select="tns:P_9B"/> brutto
-								</xsl:if>
+							</xsl:if>
 						</td>
-						<td class="prawa" width="auto">
+						<td class="prawa" width="auto" maxwidth="100">
 							<xsl:value-of select="tns:P_10"/>
 						</td>
-						<td class="prawa" width="auto">
+						<td class="prawa" width="auto" maxwidth="100">
 							<xsl:if test="tns:P_11">
 								<xsl:value-of select="tns:P_11"/> netto
-								</xsl:if>
+							</xsl:if>
 							<xsl:if test="tns:P_11A">
 								<br/>
 								<xsl:value-of select="tns:P_11A"/> brutto
-								</xsl:if>
+							</xsl:if>
 						</td>
-						<td class="prawa" width="auto">
+						<td class="prawa" width="auto" maxwidth="100">
 							<xsl:value-of select="tns:P_11Vat"/>
 						</td>
-						<td class="srodek" width="auto">
+						<td class="srodek" width="auto" maxwidth="100">
 							<xsl:choose>
 								<xsl:when test="tns:P_12 = '23'">
 									<xsl:text>23%</xsl:text>
@@ -1078,46 +1111,46 @@
 								</xsl:when>
 							</xsl:choose>
 						</td>
-						<td class="srodek" width="auto">
+						<td class="srodek" width="auto" maxwidth="100">
 							<xsl:if test="tns:P_12_XII">
 								<xsl:value-of select="tns:P_12_XII"/>
 								<xsl:text>%</xsl:text>
 							</xsl:if>
 						</td>
-						<td class="srodek" width="auto">
+						<td class="srodek" width="auto" maxwidth="100">
 							<xsl:value-of select="tns:P_6A"/>
 						</td>
 						<td class="lewa" width="auto">
 							<xsl:if test="tns:GTIN">
-									GTIN: 
-									<xsl:value-of select="tns:GTIN"/>;
+								GTIN:
+								<xsl:value-of select="tns:GTIN"/>;
 							</xsl:if>
 							<xsl:if test="tns:PKWiU">
 								<xsl:if test="tns:GTIN">
 									<br/>
 								</xsl:if>
-									PKWiU: 
-									<xsl:value-of select="tns:PKWiU"/>;
+								PKWiU:
+								<xsl:value-of select="tns:PKWiU"/>;
 							</xsl:if>
 							<xsl:if test="tns:CN">
 								<xsl:if test="tns:GTIN|tns:PKWiU">
 									<br/>
 								</xsl:if>
-									CN: 
-									<xsl:value-of select="tns:CN"/>;
+								CN:
+								<xsl:value-of select="tns:CN"/>;
 							</xsl:if>
 							<xsl:if test="tns:PKOB">
 								<xsl:if test="tns:GTIN|tns:PKWiU|tns:CN">
 									<br/>
 								</xsl:if>
-									PKOB: 
-									<xsl:value-of select="tns:PKOB"/>;
+								PKOB:
+								<xsl:value-of select="tns:PKOB"/>;
 							</xsl:if>
 						</td>
-						<td class="prawa" width="auto">
+						<td class="prawa" width="auto" maxwidth="100">
 							<xsl:value-of select="tns:KwotaAkcyzy"/>
 						</td>
-						<td class="srodek" width="auto">
+						<td class="srodek" width="auto" maxwidth="100">
 							<xsl:if test="tns:GTU">
 								<xsl:value-of select="tns:GTU"/>
 							</xsl:if>
@@ -1128,7 +1161,7 @@
 								<xsl:value-of select="tns:Procedura"/>
 							</xsl:if>
 						</td>
-						<td class="prawa">
+						<td class="prawa" maxwidth="100">
 							<xsl:value-of select="tns:KursWaluty"/>
 						</td>
 						<td class="srodek">
@@ -1139,7 +1172,7 @@
 								</b>
 							</xsl:if>
 						</td>
-						<td class="srodek">
+						<td class="srodek" maxwidth="100">
 							<xsl:if test="tns:StanPrzed = '1'">
 								<input type="checkbox" checked="checked" disabled="disabled"/>
 								<b>
@@ -1177,7 +1210,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_1|tns:Fa/tns:P_14_1">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>22% lub 23%</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1195,7 +1228,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_2|tns:Fa/tns:P_14_2">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>7% lub 8%</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1212,7 +1245,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_3|tns:Fa/tns:P_14_3">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>5%</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1229,7 +1262,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_6_1">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text> 0% krajowe</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1242,7 +1275,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_6_2">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text> 0% WDT</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1255,7 +1288,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_6_3">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>  0% eksport</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1268,7 +1301,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_5">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>oss</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1283,7 +1316,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_7">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>zw</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1296,7 +1329,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_4|tns:Fa/tns:P_14_4|tns:P_14_4W">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>ryczałt taxi</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1313,7 +1346,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_8">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>np z wyjątkiem art. 100 ust. 1 pkt 4 ustawy</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1326,7 +1359,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_9">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>np wynikające z art. 100 ust. 1 pkt 4 ustawy</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1339,7 +1372,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_10">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>oo</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1352,7 +1385,7 @@
 				</tr>
 				<tr>
 					<xsl:if test="tns:Fa/tns:P_13_11">
-						<td class="wypelniane" width="12%">
+						<td class="wypelniane prawa" width="12%">
 							<xsl:text>marża</xsl:text>
 						</td>
 						<td class="prawa" width="12%">
@@ -1371,14 +1404,14 @@
 					<br/>
 					<b>
 						<xsl:if test="((tns:Fa/tns:RodzajFaktury = 'VAT') or (tns:Fa/tns:RodzajFaktury = 'KOR') or (tns:Fa/tns:RodzajFaktury = 'UPR'))">
-					Kwota należności ogółem: 
-					</xsl:if>
+							Kwota należności ogółem:
+						</xsl:if>
 						<xsl:if test="((tns:Fa/tns:RodzajFaktury = 'ZAL') or (tns:Fa/tns:RodzajFaktury = 'KOR_ZAL'))">
-					Otrzymana kwota zapłaty: 
-					</xsl:if>
+							Otrzymana kwota zapłaty:
+						</xsl:if>
 						<xsl:if test="((tns:Fa/tns:RodzajFaktury = 'ROZ') or (tns:Fa/tns:RodzajFaktury = 'KOR_ROZ'))">
-					Kwota pozostała do zapłaty: 
-					</xsl:if>
+							Kwota pozostała do zapłaty:
+						</xsl:if>
 						<xsl:value-of select="tns:Fa/tns:P_15"/>
 						<xsl:text> </xsl:text>
 						<xsl:value-of select="tns:Fa/tns:KodWaluty"/>
@@ -1390,13 +1423,13 @@
 			<xsl:if test="tns:Fa/tns:KursWalutyZ">
 				<tr>
 					<td>
-						Kurs waluty stosowany do wyliczenia kwoty podatku w przypadkach, o których mowa w dziale VI ustawy na fakturach, o których mowa w art. 106b ust. 1 pkt 4 ustawy: 
+						Kurs waluty stosowany do wyliczenia kwoty podatku w przypadkach, o których mowa w dziale VI ustawy na fakturach, o których mowa w art. 106b ust. 1 pkt 4 ustawy:
 						<b>
 							<xsl:value-of select="tns:Fa/tns:KursWalutyZ"/> PLN/<xsl:value-of select="tns:Fa/tns:KodWaluty"/>
 						</b>
-					<br/>
-					<br/>
-				</td>
+						<br/>
+						<br/>
+					</td>
 				</tr>
 			</xsl:if>
 		</table>
@@ -1579,7 +1612,7 @@
 										<xsl:when test="tns:FormaPlatnosci = '7'">
 											<xsl:text>Mobilna</xsl:text>
 										</xsl:when>
-									</xsl:choose> 
+									</xsl:choose>
 								</xsl:if>
 								<xsl:if test="tns:PlatnoscInna = '1'">
 									<input type="checkbox" checked="checked" disabled="disabled"/>
@@ -1673,7 +1706,9 @@
 				<table class="break-word">
 					<tr>
 						<br/>
-						<td class="niewypelniane" width="22%">Pełny numer rachunku<br/>Kod SWIFT</td>
+						<td class="niewypelniane" width="22%">
+							Pełny numer rachunku<br/>Kod SWIFT
+						</td>
 						<td class="niewypelniane" width="16%">Rachunek własny banku</td>
 						<td class="niewypelniane" width="31%">Nazwa</td>
 						<td class="niewypelniane" width="31%">Opis rachunku</td>
@@ -1684,7 +1719,7 @@
 								<xsl:value-of select="tns:NrRB"/>
 								<br/>
 								<xsl:if test="tns:SWIFT">
-									SWIFT: 
+									SWIFT:
 									<xsl:value-of select="tns:SWIFT"/>
 								</xsl:if>
 							</td>
@@ -1717,7 +1752,9 @@
 				<table class="break-word">
 					<tr>
 						<br/>
-						<td class="niewypelniane" width="22%">Pełny numer rachunku<br/>Kod SWIFT</td>
+						<td class="niewypelniane" width="22%">
+							Pełny numer rachunku<br/>Kod SWIFT
+						</td>
 						<td class="niewypelniane" width="16%">Rachunek własny banku</td>
 						<td class="niewypelniane" width="31%">Nazwa</td>
 						<td class="niewypelniane" width="31%">Opis rachunku</td>
@@ -1728,7 +1765,7 @@
 								<xsl:value-of select="tns:NrRB"/>
 								<br/>
 								<xsl:if test="tns:SWIFT">
-									SWIFT: 
+									SWIFT:
 									<xsl:value-of select="tns:SWIFT"/>
 								</xsl:if>
 							</td>
@@ -1763,10 +1800,10 @@
 					<tr>
 						<br/>
 						<td class="niewypelniane" width="50%">
-						Warunki, które nabywca powinien spełnić, aby skorzystać ze skonta
+							Warunki, które nabywca powinien spełnić, aby skorzystać ze skonta
 						</td>
 						<td class="niewypelniane" width="50%">
-						Wysokość skonta
+							Wysokość skonta
 						</td>
 					</tr>
 					<tr>
@@ -1781,7 +1818,8 @@
 				<br/>
 			</xsl:if>
 			<xsl:if test="tns:LinkDoPlatnosci">
-				<div>Link do płatności bezgotówkowej -
+				<div>
+					Link do płatności bezgotówkowej -
 					<b>
 						<xsl:value-of select="tns:LinkDoPlatnosci"/>
 					</b>
@@ -1789,7 +1827,8 @@
 				<br/>
 			</xsl:if>
 			<xsl:if test="tns:IPKSeF">
-				<div>Identyfikator płatności Krajowego Systemu e-Faktur -
+				<div>
+					Identyfikator płatności Krajowego Systemu e-Faktur -
 					<b>
 						<xsl:value-of select="tns:IPKSeF"/>
 					</b>
@@ -1917,7 +1956,7 @@
 					</table>
 				</xsl:if>
 				<xsl:if test="tns:P_19N = '1'">
-					Znacznik braku dostawy towarów lub świadczenia usług zwolnionych od podatku na podstawie art. 43 ust. 1, art. 113 ust. 1 i 9 ustawy albo przepisów wydanych na podstawie art. 82 ust. 3 ustawy lub na podstawie innych przepisów - 
+					Znacznik braku dostawy towarów lub świadczenia usług zwolnionych od podatku na podstawie art. 43 ust. 1, art. 113 ust. 1 i 9 ustawy albo przepisów wydanych na podstawie art. 82 ust. 3 ustawy lub na podstawie innych przepisów -
 					<input type="checkbox" checked="checked" disabled="disabled"/>
 					<b>1. Tak</b>
 					<br/>
@@ -1926,11 +1965,13 @@
 			<br/>
 			<xsl:if test="tns:NoweSrodkiTransportu/tns:P_22 = '1'">
 				<xsl:for-each select="tns:NoweSrodkiTransportu">
-					<div>Wewnątrzwspólnotowa dostawa nowych środków transportu -
+					<div>
+						Wewnątrzwspólnotowa dostawa nowych środków transportu -
 						<input type="checkbox" checked="checked" disabled="disabled"/>
 						<b>1. Tak</b>
 					</div>
-					<div>Występuje obowiązek, o którym mowa w art. 42 ust. 5 ustawy -
+					<div>
+						Występuje obowiązek, o którym mowa w art. 42 ust. 5 ustawy -
 						<input type="checkbox" checked="checked" disabled="disabled"/>
 						<xsl:if test="tns:P_42_5 = '1'">
 							<b>1. Tak</b>
@@ -2018,14 +2059,16 @@
 				</xsl:for-each>
 			</xsl:if>
 			<xsl:if test="tns:NoweSrodkiTransportu/tns:P_22N = '1'">
-				<div>Brak wewnątrzwspólnotowej dostawy nowych środków transportu -
-						<input type="checkbox" checked="checked" disabled="disabled"/>
+				<div>
+					Brak wewnątrzwspólnotowej dostawy nowych środków transportu -
+					<input type="checkbox" checked="checked" disabled="disabled"/>
 					<b>1. Tak</b>
 				</div>
 			</xsl:if>
 			<br/>
 			<br/>
-			<div>VAT: Faktura WE uproszczona na mocy art. 135-138 ustawy o ptu. Podatek z tytułu dokonanej dostawy zostanie rozliczony przez ostatniego w kolejności podatnika podatku od wartości dodanej: 
+			<div>
+				VAT: Faktura WE uproszczona na mocy art. 135-138 ustawy o ptu. Podatek z tytułu dokonanej dostawy zostanie rozliczony przez ostatniego w kolejności podatnika podatku od wartości dodanej:
 				<xsl:choose>
 					<xsl:when test="tns:P_23 = '1'">
 						<b>
@@ -2045,16 +2088,18 @@
 			<xsl:for-each select="tns:PMarzy">
 				<xsl:choose>
 					<xsl:when test="tns:P_PMarzy = '1'">
-						<div>Wystąpienie procedur marży, o których mowa w art. 119 lub art. 120 ustawy:  
-						<b>
+						<div>
+							Wystąpienie procedur marży, o których mowa w art. 119 lub art. 120 ustawy:
+							<b>
 								<input type="checkbox" checked="checked" disabled="disabled"/>
 								<xsl:text>1. Tak</xsl:text>
 							</b>
 						</div>
 					</xsl:when>
 					<xsl:when test="tns:P_PMarzyN = '1'">
-						<div>Brak wystąpienia procedur marży, o których mowa w art. 119 lub art. 120 ustawy:
-						<b>
+						<div>
+							Brak wystąpienia procedur marży, o których mowa w art. 119 lub art. 120 ustawy:
+							<b>
 								<input type="checkbox" checked="checked" disabled="disabled"/>
 								<xsl:text>1. Tak</xsl:text>
 							</b>
@@ -2223,7 +2268,8 @@
 					<xsl:for-each select="tns:Transport">
 						<table width="100%">
 							<tr>
-								<td class="niewypelniane" colspan="2">Transport <xsl:number value="position()" format="(1) "/>
+								<td class="niewypelniane" colspan="2">
+									Transport <xsl:number value="position()" format="(1) "/>
 								</td>
 							</tr>
 						</table>
@@ -2562,8 +2608,9 @@
 					</xsl:for-each>
 				</xsl:if>
 				<xsl:if test="tns:PodmiotPosredniczacy = '1'">
-					<div>Dostawa dokonana przez podmiot, o którym mowa w art. 22 ust. 2d ustawy (pole dotyczy przypadku, w którym podmiot uczestniczy w transakcji łańcuchowej innej niż procedura trójstronna uproszczona, o której mowa w art. 135 ust. 1 pkt 4 ustawy): 
-					<input type="checkbox" checked="checked" disabled="disabled"/>
+					<div>
+						Dostawa dokonana przez podmiot, o którym mowa w art. 22 ust. 2d ustawy (pole dotyczy przypadku, w którym podmiot uczestniczy w transakcji łańcuchowej innej niż procedura trójstronna uproszczona, o której mowa w art. 135 ust. 1 pkt 4 ustawy):
+						<input type="checkbox" checked="checked" disabled="disabled"/>
 						<b>1. Tak</b>
 					</div>
 				</xsl:if>
@@ -2578,7 +2625,8 @@
 			<br/>
 			<xsl:for-each select="tns:Fa/tns:Zamowienie">
 				<br/>
-				<div>Wartość zamówienia lub umowy z uwzględnieniem kwoty podatku: 
+				<div>
+					Wartość zamówienia lub umowy z uwzględnieniem kwoty podatku:
 					<b>
 						<xsl:value-of select="tns:WartoscZamowienia"/>
 					</b>
@@ -2588,55 +2636,37 @@
 				<br/>
 				<br/>
 				<br/>
-				<table class="white-space">
-					<tr>
-						<td class="niewypelniane">Numer wiersza zamówienia lub umowy</td>
-						<td class="niewypelniane">Uniwersalny unikalny numer wiersza zamówienia lub umowy</td>
-						<td class="niewypelniane">Nazwa (rodzaj) towaru lub usługi</td>
-						<td class="niewypelniane">Indeks</td>
-						<td class="niewypelniane">Jednostka miary zamówionego towaru lub zakres usługi</td>
-						<td class="niewypelniane">Ilość zamówionego towaru lub zakres usługi</td>
-						<td class="niewypelniane">Cena jednostkowa netto</td>
-						<td class="niewypelniane">Wartość sprzedaży netto zamówionego towaru lub zakres usługi</td>
-						<td class="niewypelniane">Kwota VAT od zamówionego towaru lub usługi</td>
-						<td class="niewypelniane">Stawka podatku</td>
-						<td class="niewypelniane">Stawka podatku od wartości dodanej</td>
-						<td class="niewypelniane">Klasyfikacja</td>
-						<td class="niewypelniane">Kwota podatku akcyzowego zawarta w cenie towaru</td>
-						<td class="niewypelniane">Oznaczenie dotyczące dostawy towarów i świadczenia usług lub procedury</td>
-						<td class="niewypelniane">Znacznik dla towaru lub usługi z załącznika nr 15 do ustawy</td>
-						<td class="niewypelniane">Znacznik stanu przed korektą</td>
-					</tr>
+				<table class="white-space break-word">
 					<xsl:for-each select="tns:ZamowienieWiersz">
 						<tr>
-							<td class="srodek" width="auto">
+							<td class="srodek" width="auto" maxwidth="50">
 								<xsl:value-of select="tns:NrWierszaZam"/>
 							</td>
-							<td class="srodek" width="auto">
+							<td class="srodek" width="auto" maxwidth="100">
 								<xsl:value-of select="tns:UU_IDZ"/>
 							</td>
-							<td class="lewa" width="auto">
+							<td class="lewa" width="auto" maxwidth="100">
 								<xsl:value-of select="tns:P_7Z"/>
 							</td>
-							<td class="srodek" width="auto">
+							<td class="srodek" width="auto" maxwidth="100">
 								<xsl:value-of select="tns:IndeksZ"/>
 							</td>
-							<td class="srodek" width="auto">
+							<td class="srodek" width="auto" maxwidth="50">
 								<xsl:value-of select="tns:P_8AZ"/>
 							</td>
-							<td class="prawa" width="auto">
+							<td class="prawa" width="auto" maxwidth="100">
 								<xsl:value-of select="tns:P_8BZ"/>
 							</td>
-							<td class="prawa" width="auto">
+							<td class="prawa" width="auto" maxwidth="100">
 								<xsl:value-of select="tns:P_9AZ"/>
 							</td>
-							<td class="prawa" width="auto">
+							<td class="prawa" width="auto" maxwidth="100">
 								<xsl:value-of select="tns:P_11NettoZ"/>
 							</td>
-							<td class="prawa" width="auto">
+							<td class="prawa" width="auto" maxwidth="100">
 								<xsl:value-of select="tns:P_11VatZ"/>
 							</td>
-							<td class="srodek" width="auto">
+							<td class="srodek" width="auto" maxwidth="100">
 								<xsl:choose>
 									<xsl:when test="tns:P_12Z = '23'">
 										<xsl:text>23%</xsl:text>
@@ -2673,43 +2703,43 @@
 									</xsl:when>
 								</xsl:choose>
 							</td>
-							<td class="srodek" width="auto">
+							<td class="srodek" width="auto" maxwidth="100">
 								<xsl:if test="tns:P_12Z_XII">
 									<xsl:value-of select="tns:P_12Z_XII"/>
 									<xsl:text>%</xsl:text>
 								</xsl:if>
 							</td>
-							<td class="lewa" width="auto">
+							<td class="lewa" width="auto" maxwidth="100">
 								<xsl:if test="tns:GTINZ">
-									GTIN: 
+									GTIN:
 									<xsl:value-of select="tns:GTINZ"/>;
 								</xsl:if>
 								<xsl:if test="tns:PKWiUZ">
 									<xsl:if test="tns:GTINZ">
 										<br/>
 									</xsl:if>
-									PKWiU: 
+									PKWiU:
 									<xsl:value-of select="tns:PKWiUZ"/>;
 								</xsl:if>
 								<xsl:if test="tns:CNZ">
 									<xsl:if test="tns:GTINZ|tns:PKWiUZ">
 										<br/>
 									</xsl:if>
-									CN: 
+									CN:
 									<xsl:value-of select="tns:CNZ"/>;
 								</xsl:if>
 								<xsl:if test="tns:PKOBZ">
 									<xsl:if test="tns:GTINZ|tns:PKWiUZ|tns:CNZ">
 										<br/>
 									</xsl:if>
-									PKOB: 
+									PKOB:
 									<xsl:value-of select="tns:PKOBZ"/>;
 								</xsl:if>
 							</td>
-							<td class="prawa" width="auto">
+							<td class="prawa" width="auto" maxwidth="100">
 								<xsl:value-of select="tns:KwotaAkcyzyZ"/>
 							</td>
-							<td class="srodek" width="auto">
+							<td class="srodek" width="auto" maxwidth="100">
 								<xsl:if test="tns:GTUZ">
 									<xsl:value-of select="tns:GTUZ"/>
 								</xsl:if>
@@ -2720,7 +2750,7 @@
 									<xsl:value-of select="tns:ProceduraZ"/>
 								</xsl:if>
 							</td>
-							<td class="srodek">
+							<td class="srodek" maxwidth="100">
 								<xsl:if test="tns:P_12Z_Zal_15 = '1'">
 									<input type="checkbox" checked="checked" disabled="disabled"/>
 									<b>
@@ -2728,7 +2758,7 @@
 									</b>
 								</xsl:if>
 							</td>
-							<td class="srodek">
+							<td class="srodek" maxwidth="100">
 								<xsl:if test="tns:StanPrzedZ = '1'">
 									<input type="checkbox" checked="checked" disabled="disabled"/>
 									<b>
@@ -2907,7 +2937,8 @@
 					<xsl:for-each select="tns:Podmiot2K">
 						<table>
 							<tr>
-								<td class="niewypelniane" colspan="6">Dane nabywcy występujące na fakturze korygowanej <xsl:number value="position()" format=" (1) "/>
+								<td class="niewypelniane" colspan="6">
+									Dane nabywcy występujące na fakturze korygowanej <xsl:number value="position()" format=" (1) "/>
 								</td>
 							</tr>
 						</table>
@@ -3001,8 +3032,8 @@
 						</xsl:for-each>
 						<xsl:if test="tns:IDNabywcy">
 							<div>
-								Unikalny klucz powiązania danych nabywcy na fakturach korygujących, w przypadku gdy dane nabywcy na fakturze korygującej zmieniły się w stosunku do danych na fakturze korygowanej: 
-							<b>
+								Unikalny klucz powiązania danych nabywcy na fakturach korygujących, w przypadku gdy dane nabywcy na fakturze korygującej zmieniły się w stosunku do danych na fakturze korygowanej:
+								<b>
 									<xsl:value-of select="tns:IDNabywcy"/>
 								</b>
 							</div>
@@ -3013,8 +3044,8 @@
 			</xsl:if>
 			<xsl:if test="tns:P_15ZK">
 				<div>
-					W przypadku korekt faktur zaliczkowych - kwota zapłaty przed korektą. W przypadku korekt faktur, o których mowa w art. 106f ust. 3 ustawy - kwota pozostała do zapłaty przed korektą: 
-							<b>
+					W przypadku korekt faktur zaliczkowych - kwota zapłaty przed korektą. W przypadku korekt faktur, o których mowa w art. 106f ust. 3 ustawy - kwota pozostała do zapłaty przed korektą:
+					<b>
 						<xsl:value-of select="tns:P_15ZK"/>
 					</b>
 				</div>
@@ -3022,8 +3053,8 @@
 			</xsl:if>
 			<xsl:if test="tns:KursWalutyZK">
 				<div>
-					Kurs waluty stosowany do wyliczenia kwoty podatku w przypadkach, o których mowa w dziale VI ustawy przed korektą: 
-							<b>
+					Kurs waluty stosowany do wyliczenia kwoty podatku w przypadkach, o których mowa w dziale VI ustawy przed korektą:
+					<b>
 						<xsl:value-of select="tns:KursWalutyZK"/>
 					</b>
 				</div>
@@ -3149,10 +3180,10 @@
 		<br/>
 		<xsl:if test="tns:Fa/tns:ZwrotAkcyzy = '1'">
 			<div>
-				Zwrot akcyzy: 
+				Zwrot akcyzy:
 				<b>
 					<input type="checkbox" checked="checked" disabled="disabled"/>
-						1. Tak
+					1. Tak
 				</b>
 			</div>
 			<br/>
@@ -3243,12 +3274,16 @@
 			<br/>
 			<div align="center">
 				<a href="https://www.gov.pl/web/kas/krajowy-system-e-faktur">
-					<b>Krajowy System <font style="color:red">e</font>-Faktur</b>
+					<b>
+						Krajowy System <font style="color:red">e</font>-Faktur
+					</b>
 				</a>
 			</div>
 			<br/>
 			<br/>
 		</xsl:if>
+		
+		<div style="clear: both; height: 0; font-size: 0; line-height: 0;"></div>
 	</xsl:template>
 	<xsl:template name="Zalacznik">
 		<xsl:if test="tns:Zalacznik">
@@ -3256,7 +3291,9 @@
 				<br/>
 				<br/>
 				<div>
-					<b>Szczegółowe dane załącznika <xsl:number value="position()" format=" (1) "/></b>
+					<b>
+						Szczegółowe dane załącznika <xsl:number value="position()" format=" (1) "/>
+					</b>
 				</div>
 				<br/>
 				<div>
@@ -3284,7 +3321,7 @@
 				<br/>
 				<xsl:for-each select="tns:Tekst/tns:Akapit">
 					<div>
-						 Opis <xsl:number value="position()" format=" (1) "/>: <xsl:value-of select="."/>
+						Opis <xsl:number value="position()" format=" (1) "/>: <xsl:value-of select="."/>
 					</div>
 				</xsl:for-each>
 				<br/>

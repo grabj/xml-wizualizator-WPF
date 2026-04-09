@@ -430,7 +430,8 @@ namespace XmlWizualizator
                         var transformedContent = stringWriter.ToString();
 
                         const string disclaimer = @"
-<div style=""margin-top: 2em; padding: 1em; border-top: 1px solid #333; font-size: 0.9em; text-align: center;"">
+<div style=""clear: both; height: 0; font-size: 0; line-height: 0;""></div>
+<div style=""margin-top: 2em; padding: 1em; border-top: 1px solid #333; font-size: 0.9em; text-align: center; clear: both;"">
     <strong>Uwaga</strong><br/>
     Wizualizacja nie reprezentuje przesłanego dokumentu. Jest jedynie wizualną reprezentacją treści zawartej w dokumencie, która nie zawiera żadnych podpisów, ani informacji o podpisach.
 </div>";
@@ -576,7 +577,8 @@ namespace XmlWizualizator
                 var transformedContent = stringWriter.ToString();
                 
                 const string disclaimer = @"
-<div style=""margin-top: 2em; padding: 1em; border-top: 1px solid #333; font-size: 0.9em; text-align: center;"">
+<div style=""clear: both; height: 0; font-size: 0; line-height: 0;""></div>
+<div style=""margin-top: 2em; padding: 1em; border-top: 1px solid #333; font-size: 0.9em; text-align: center; clear: both;"">
     <strong>Uwaga</strong><br/>
     Wizualizacja nie reprezentuje przesłanego dokumentu. Jest jedynie wizualną reprezentacją treści zawartej w dokumencie, która nie zawiera żadnych podpisów, ani informacji o podpisach.
 </div>";
