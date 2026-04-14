@@ -1,9 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
-using System.Threading.Tasks;
-using System.Linq;
+using DataFormats = System.Windows.DataFormats;
+using DragDropEffects = System.Windows.DragDropEffects;
+using DragEventArgs = System.Windows.DragEventArgs;
 
 namespace XmlWizualizator
 {
@@ -31,15 +35,52 @@ namespace XmlWizualizator
             }
         }
 
+        private void MainGrid_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                var files = e.Data.GetData(DataFormats.FileDrop) as string[];
+                if (files != null && files.Any(f =>
+                        Path.GetExtension(f).Equals(".xml", StringComparison.OrdinalIgnoreCase)))
+                {
+                    e.Effects = DragDropEffects.Copy;
+                    e.Handled = true;
+                    return;
+                }
+            }
+            e.Effects = DragDropEffects.None;
+            e.Handled = true;
+        }
+
+        private void MainGrid_Drop(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+                return;
+
+            var files = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (files == null)
+                return;
+
+            var xmlFile = files.FirstOrDefault(f =>
+                Path.GetExtension(f).Equals(".xml", StringComparison.OrdinalIgnoreCase));
+
+            if (xmlFile != null)
+            {
+                _viewModel?.LoadXmlFromPath(xmlFile);
+            }
+        }
+
         private async void InitializeWebView()
         {
             try
             {
                 webView.DefaultBackgroundColor = System.Drawing.Color.White;
-                
                 await webView.EnsureCoreWebView2Async(null);
 
-                // Jeśli w ViewModelu jest już wynik transformacji — wyświetl go po inicjalizacji
+                // Przechwytuj drag & drop trafiający bezpośrednio na WebView2
+                webView.CoreWebView2.NavigationStarting += WebView_NavigationStarting;
+                webView.CoreWebView2.NewWindowRequested += WebView_NewWindowRequested;
+
                 if (_viewModel != null && !string.IsNullOrEmpty(_viewModel.TransformedOutput))
                 {
                     DisplayTransformationResult(_viewModel.TransformedOutput);
@@ -47,7 +88,7 @@ namespace XmlWizualizator
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"Błąd inicjalizacji WebView2: {ex.Message}", 
+                System.Windows.MessageBox.Show($"Błąd inicjalizacji WebView2: {ex.Message}",
                     "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -305,9 +346,41 @@ namespace XmlWizualizator
         {
             if (webView?.CoreWebView2?.Profile != null)
             {
-                // Wymuś jasny motyw
                 webView.CoreWebView2.Profile.PreferredColorScheme = CoreWebView2PreferredColorScheme.Light;
             }
+        }
+
+        private void WebView_NavigationStarting(object? sender, CoreWebView2NavigationStartingEventArgs e)
+        {
+            if (IsXmlFileUri(e.Uri))
+            {
+                e.Cancel = true;
+                LoadXmlFromUri(e.Uri);
+            }
+        }
+
+        private void WebView_NewWindowRequested(object? sender, CoreWebView2NewWindowRequestedEventArgs e)
+        {
+            // Blokuj każde nowe okno otwierane przez WebView2
+            e.Handled = true;
+            if (IsXmlFileUri(e.Uri))
+            {
+                LoadXmlFromUri(e.Uri);
+            }
+        }
+
+        private static bool IsXmlFileUri(string uri) =>
+            uri.StartsWith("file:///", StringComparison.OrdinalIgnoreCase) &&
+            uri.EndsWith(".xml", StringComparison.OrdinalIgnoreCase);
+
+        private void LoadXmlFromUri(string uri)
+        {
+            try
+            {
+                var filePath = new Uri(uri).LocalPath;
+                _viewModel?.LoadXmlFromPath(filePath);
+            }
+            catch {}
         }
 
         protected override void OnClosed(EventArgs e)
@@ -319,6 +392,13 @@ namespace XmlWizualizator
                 _viewModel.PrintPreviewRequested -= ViewModel_PrintPreviewRequested;
                 _viewModel.BatchPdfRequested -= ViewModel_BatchPdfRequested;
             }
+
+            if (webView?.CoreWebView2 != null)
+            {
+                webView.CoreWebView2.NavigationStarting -= WebView_NavigationStarting;
+                webView.CoreWebView2.NewWindowRequested -= WebView_NewWindowRequested;
+            }
+
             base.OnClosed(e);
         }
     }

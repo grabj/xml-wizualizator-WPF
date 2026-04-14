@@ -18,7 +18,6 @@
 		<xsl:apply-templates select="wnio:Dokument"/>
 	</xsl:template>
 
-	<!-- Reszta szablonu pozostaje bez zmian -->
 	<xsl:template match="wnio:Dokument">
 		<xsl:param name="tresc" select="wnio:TrescDokumentu"/>
 		<xsl:param name="typ" select="wnio:TrescDokumentu/wnio:TypDokumentu"/>

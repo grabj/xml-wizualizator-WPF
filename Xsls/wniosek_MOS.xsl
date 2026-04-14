@@ -71,7 +71,22 @@
 		</xsl:choose>
 	</xsl:template>
 
-	<xsl:template match="/WniosekUkrDTO">
+	<xsl:template match="/*" priority="0">
+		<html>
+			<head>
+				<meta charset="UTF-8"/>
+				<title>Nieprawidłowy szablon</title>
+				<style>body { font-family: Arial, Helvetica, sans-serif; padding:12px; color:#111; }</style>
+			</head>
+			<body>
+				<p>
+					Wybrano niewłaściwy szablon.
+				</p>
+			</body>
+		</html>
+	</xsl:template>
+
+	<xsl:template match="/*[starts-with(local-name(), 'Wniosek') and substring(local-name(), string-length(local-name()) - 2) = 'DTO']" priority="1">
 		<html>
 			<head>
 				<meta charset="UTF-8"/>

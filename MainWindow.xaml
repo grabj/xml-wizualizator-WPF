@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         Title="Muflon XML" 
-        Height="900" Width="1600"
+        Height="1000" Width="1600"
         Icon="pack://application:,,,/ikona_muflon.ico">
     <Window.Resources>
 
@@ -91,7 +91,10 @@
         </Style>
     </Window.Resources>
 
-    <Grid Margin="20" Background="White">
+    <Grid Margin="20" Background="White"
+          AllowDrop="True"
+          DragOver="MainGrid_DragOver"
+          Drop="MainGrid_Drop">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="300"/>
@@ -112,9 +115,9 @@
                                 Margin="0,0,20,0" FontSize="13"/>
                     <RadioButton Content="HTML" IsChecked="{Binding IsTextMode}" 
                                 Margin="0,0,20,0" FontSize="13"/>
-                    <RadioButton Content="Tekst XML" IsChecked="{Binding IsXmlMode}"
+                    <RadioButton Content="Plik XML" IsChecked="{Binding IsXmlMode}"
                                 Margin="0,0,20,0" FontSize="13"/>
-                    <RadioButton Content="Styl XSL" IsChecked="{Binding IsXslMode}"
+                    <RadioButton Content="Szablon XSL" IsChecked="{Binding IsXslMode}"
                                 FontSize="13"/>
                 </StackPanel>
 
@@ -186,110 +189,136 @@
                 <StackPanel>
                     <!-- Sekcja XSL -->
                     <TextBlock Text="Szablon XSL" FontSize="16" FontWeight="Bold" 
-           Foreground="#333333" Margin="0,0,0,10"/>
+                        Foreground="#333333" Margin="0,0,0,10"/>
 
                     <ComboBox ItemsSource="{Binding XslFiles}"
-          SelectedItem="{Binding SelectedXslPath}"
-          Height="40"
-          FontSize="13"
-          Margin="0,0,0,25"
-          Background="#0078D4"
-          Foreground="White"
-          BorderBrush="#005A9E"
-          Padding="8,4"
-          HorizontalContentAlignment="Left">
-
-    <!-- Szablon zamkniętego ComboBox (niebieskie tło, biała etykieta) -->
-    <ComboBox.Template>
-        <ControlTemplate TargetType="ComboBox">
-            <Grid>
-                <Border x:Name="ToggleBorder"
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="3"
-                        Padding="{TemplateBinding Padding}">
-                    <DockPanel LastChildFill="True">
-                        <ContentPresenter Margin="0,0"
-                                          VerticalAlignment="Bottom"
-                                          Content="{TemplateBinding SelectionBoxItem}"
-                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
-                                          RecognizesAccessKey="True"
-                                          Height="25"
-                                          SnapsToDevicePixels="True"/>
-                        <ToggleButton DockPanel.Dock="Right"
-                                      IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                          SelectedItem="{Binding SelectedXslPath}"
+                          Height="40"
+                          FontSize="13"
+                          Margin="0,0,0,25"
+                          Background="#0078D4"
+                          Foreground="White"
+                          BorderBrush="#005A9E"
+                          HorizontalContentAlignment="Left"
+                          ToolTip="Wybierz szablon XSL do transformacji Twojego pliku XML. Szablony XSL są wczytywane automatycznie z folderu 'Xsls' w katalogu aplikacji.">
+            <!-- Szablon zamkniętego ComboBox-->
+            <ComboBox.Template>
+            <ControlTemplate TargetType="ComboBox">
+                <Grid>
+                    <Border x:Name="ToggleBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="3"
+                            Padding="{TemplateBinding Padding}"
+                            ToolTip="{TemplateBinding ToolTip}">
+                        <ToggleButton IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
                                       Focusable="True"
-                                      Background="Transparent"
-                                      BorderThickness="0"
-                                      Width="30"
-                                      HorizontalAlignment="Right">
-                            <Path Data="M 0 0 L 4 4 L 8 0 Z" Fill="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                      Padding="0"
+                                      HorizontalAlignment="Stretch"
+                                      VerticalAlignment="Stretch"
+                                      HorizontalContentAlignment="Stretch">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Grid Background="Transparent">
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                          Cursor="Hand"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                            <DockPanel LastChildFill="True">
+                                <Path DockPanel.Dock="Right"
+                                      Data="M 0 0 L 4 4 L 8 0 Z"
+                                      Fill="White"
+                                      Width="10"
+                                      Margin="0,0,0,0"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                                <ContentPresenter VerticalAlignment="Bottom"
+                                                  Content="{TemplateBinding SelectionBoxItem}"
+                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                  RecognizesAccessKey="True"
+                                                  Height="25"
+                                                  TextElement.FontWeight="Bold"
+                                                  SnapsToDevicePixels="True"
+                                                  TextElement.Foreground="White"
+                                                  Cursor="Hand"/>
+                            </DockPanel>
                         </ToggleButton>
-                    </DockPanel>
-                </Border>
-
-                <!-- Popup z listą — jasne tło, elementy listy wystylowane poniżej -->
-                <Popup Name="PART_Popup"
-                       Placement="Bottom"
-                       IsOpen="{TemplateBinding IsDropDownOpen}"
-                       AllowsTransparency="True"
-                       Focusable="False"
-                       PopupAnimation="Slide">
-                    <Border Background="White"
-                            BorderBrush="#D1D1D1"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            SnapsToDevicePixels="True"
-                            Margin="0,4,0,0">
-                        <ScrollViewer Background="White" MaxHeight="300">
-                            <ItemsPresenter/>
-                        </ScrollViewer>
                     </Border>
-                </Popup>
-            </Grid>
-        </ControlTemplate>
-    </ComboBox.Template>
 
-    <!-- Elementy listy: ciemny tekst na jasnym tle; selected/hover z kontrastem -->
-    <ComboBox.ItemContainerStyle>
-        <Style TargetType="ComboBoxItem">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#333333"/>
-            <Setter Property="Padding" Value="8,6"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ComboBoxItem">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    <Popup Name="PART_Popup"
+                           Placement="Bottom"
+                           IsOpen="{TemplateBinding IsDropDownOpen}"
+                           AllowsTransparency="True"
+                           Focusable="False"
+                           PopupAnimation="Slide">
+                        <Border Background="White"
+                                BorderBrush="#D1D1D1"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                SnapsToDevicePixels="True"
+                                Margin="0,4,0,0">
+                            <ScrollViewer Background="White" MaxHeight="600">
+                                <ItemsPresenter/>
+                            </ScrollViewer>
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#005A9E"/>
-                                <Setter Property="Foreground" Value="White"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#E6F0FA"/>
-                                <Setter Property="Foreground" Value="#111111"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="#999999"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </ComboBox.ItemContainerStyle>
+                    </Popup>
+                </Grid>
 
-    <ComboBox.ItemTemplate>
-        <DataTemplate>
-            <TextBlock Text="{Binding Converter={StaticResource FileNameConverter}}"
-                       TextTrimming="CharacterEllipsis"/>
-        </DataTemplate>
-    </ComboBox.ItemTemplate>
-</ComboBox>
+                <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter TargetName="ToggleBorder" Property="Background" Value="#005A9E"/>
+                    </Trigger>
+                    <Trigger Property="IsDropDownOpen" Value="True">
+                        <Setter TargetName="ToggleBorder" Property="Background" Value="#004578"/>
+                    </Trigger>
+                </ControlTemplate.Triggers>
+            </ControlTemplate>
+        </ComboBox.Template>
+
+                        <!-- Elementy listy-->
+                        <ComboBox.ItemContainerStyle>
+                            <Style TargetType="ComboBoxItem">
+                                <Setter Property="Background" Value="White"/>
+                                <Setter Property="Foreground" Value="#333333"/>
+                                <Setter Property="Padding" Value="8,6"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                                <Setter Property="FontSize" Value="13"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ComboBoxItem">
+                                            <Border x:Name="Bd" Background="{TemplateBinding Background}" SnapsToDevicePixels="True" Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#005A9E"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#E6F0FA"/>
+                                                    <Setter Property="Foreground" Value="#111111"/>
+                                                    <Setter Property="Cursor" Value="Hand"/>
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter Property="Foreground" Value="#999999"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ComboBox.ItemContainerStyle>
+
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource FileNameConverter}}"
+                           TextTrimming="CharacterEllipsis"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
 
                     <!-- Separator -->
                     <Separator Margin="0,0,0,25" Background="#D1D1D1"/>
@@ -303,7 +332,8 @@
                            Command="{Binding SelectXmlCommand}" 
                            Style="{StaticResource ModernButtonStyle}"
                            HorizontalAlignment="Stretch"
-                           Margin="0,0,0,10"/>
+                           Margin="0,0,0,10"
+                           ToolTip="Otwiera okno dialogowe do wyboru pojedynczego pliku XML do transformacji. Można też przeciągnąć plik XML bezpośrednio na okno aplikacji."/>
                     
                     <Border Background="#F3F3F3" 
                            BorderBrush="#E1E1E1" 
@@ -323,7 +353,9 @@
                            HorizontalAlignment="Stretch"
                            Height="45"
                            FontSize="15"
-                           Margin="0,0,0,15"/>
+                           Margin="0,0,0,15"
+                           ToolTipService.ShowOnDisabled="True"
+                           ToolTip="Uruchamia transformację wybranego pliku XML przy użyciu aktywnego szablonu XSL i wyświetla wynik. Wymaga wybrania zarówno pliku XML, jak i szablonu XSL."/>
 
                     <!-- Sekcja Wydruk -->
                     <TextBlock Text="Wydruk" FontSize="15" FontWeight="Bold" 
@@ -333,13 +365,17 @@
                            Command="{Binding PrintPreviewCommand}" 
                            Style="{StaticResource ActionButtonStyle}"
                            HorizontalAlignment="Stretch"
-                           Margin="0,0,0,10"/>
+                           Margin="0,0,0,10"
+                           ToolTipService.ShowOnDisabled="True"
+                           ToolTip="Otwiera systemowe okno podglądu wydruku dla aktualnej wizualizacji. Dostępne po wykonaniu transformacji."/>
 
                     <Button Content="💾 Zapisz jako PDF" 
                            Command="{Binding PrintCommand}" 
                            Style="{StaticResource ActionButtonStyle}"
                            HorizontalAlignment="Stretch"
-                           Margin="0,0,0,10"/>
+                           Margin="0,0,0,10"
+                           ToolTipService.ShowOnDisabled="True"
+                           ToolTip="Zapisuje aktualną wizualizację do pliku PDF w wybranej lokalizacji. Dostępne po wykonaniu transformacji."/>
 
                     <!-- Separator -->
                     <Separator Margin="0,15,0,25" Background="#D1D1D1"/>
@@ -352,14 +388,17 @@
                            Command="{Binding SelectMultipleXmlCommand}" 
                            Style="{StaticResource ModernButtonStyle}"
                            HorizontalAlignment="Stretch"
-                           Margin="0,0,0,10"/>
+                           Margin="0,0,0,10"
+                           ToolTip="Otwiera okno dialogowe do wyboru wielu plików XML jednocześnie. Wybrane pliki trafią na listę poniżej."/>
 
                     <Button Content="🗑 Wyczyść listę" 
                            Command="{Binding ClearXmlFilesCommand}" 
                            Style="{StaticResource LowImportanceButtonStyle}"
                            HorizontalAlignment="Stretch"
                            Margin="0,0,0,5"
-                           Padding="10,6"/>
+                           Padding="10,6"
+                           ToolTipService.ShowOnDisabled="True"
+                           ToolTip="Usuwa wszystkie pliki z listy masowej transformacji."/>
 
                     <Border Background="#F3F3F3" 
                            BorderBrush="#E1E1E1" 
@@ -391,7 +430,8 @@
                                                FontSize="10" Cursor="Hand"
                                                Background="Transparent" BorderThickness="0"
                                                Foreground="Red" Padding="4,0"
-                                               VerticalAlignment="Center"/>
+                                               VerticalAlignment="Center"
+                                               ToolTip="Usuń ten plik z listy masowej transformacji"/>
                                     </Grid>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -402,7 +442,9 @@
                            Command="{Binding BatchTransformCommand}"
                            Style="{StaticResource ActionButtonStyle}"
                            HorizontalAlignment="Stretch"
-                           Margin="0,5,0,25"/>
+                           Margin="0,5,0,25"
+                           ToolTipService.ShowOnDisabled="True"
+                           ToolTip="Transformuje wszystkie pliki z listy i zapisuje je jako osobne pliki PDF w wybranym folderze. Wymaga co najmniej jednego pliku XML na liście oraz wybranego szablonu XSL."/>
                 </StackPanel>
             </ScrollViewer>
         </Border>

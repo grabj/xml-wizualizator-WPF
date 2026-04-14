@@ -58,7 +58,6 @@ namespace XmlWizualizator
             BatchTransformCommand = new RelayCommand(_ => BatchTransformXml(), _ => CanBatchTransform());
             RemoveXmlFileCommand = new RelayCommand(path => RemoveXmlFile(path as string));
             ClearXmlFilesCommand = new RelayCommand(_ => ClearXmlFiles(), _ => SelectedXmlPaths.Count > 0);
-            ShowPathCommand = new RelayCommand(_ => ShowDiagnostics());
             PrintCommand = new RelayCommand(_ => RequestPrint(), _ => CanPrint());
             PrintPreviewCommand = new RelayCommand(_ => RequestPrintPreview(), _ => CanPrint());
 
@@ -92,7 +91,7 @@ namespace XmlWizualizator
                 {
                     _selectedXmlPath = value;
                     OnPropertyChanged();
-                    StatusMessage = $"Wybrano plik XML: {Path.GetFileName(value)}";
+                    StatusMessage = BuildXmlStatusMessage(value);
                 }
             }
         }
@@ -107,7 +106,7 @@ namespace XmlWizualizator
                     _selectedXslPath = value;
                     OnPropertyChanged();
                     StatusMessage = $"Wybrano szablon XSL: {Path.GetFileName(value)}";
-                    
+
                     if (IsXslMode)
                     {
                         LoadRawXsl();
@@ -183,10 +182,10 @@ namespace XmlWizualizator
 
         public enum ViewMode
         {
-            Html,      
+            Html,
             Text,
             RawXml,
-            RawXsl     
+            RawXsl
         }
 
         public ViewMode CurrentViewMode
@@ -202,7 +201,7 @@ namespace XmlWizualizator
                     OnPropertyChanged(nameof(IsHtmlMode));
                     OnPropertyChanged(nameof(IsXmlMode));
                     OnPropertyChanged(nameof(IsXslMode));
-                    
+
                     if (value == ViewMode.RawXml && !string.IsNullOrEmpty(SelectedXmlPath))
                     {
                         LoadRawXml();
@@ -248,11 +247,11 @@ namespace XmlWizualizator
             try
             {
                 XslFiles.Clear();
-                
+
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
                 string projectDir = Directory.GetParent(baseDir)?.Parent?.Parent?.Parent?.FullName ?? baseDir;
-                
-                string[] possiblePaths = 
+
+                string[] possiblePaths =
                 {
                     Path.Combine(baseDir, "Xsls"),
                     Path.Combine(projectDir, "Xsls"),
@@ -268,16 +267,16 @@ namespace XmlWizualizator
                         break;
                     }
                 }
-                
+
                 if (xslsPath == null)
                 {
                     xslsPath = possiblePaths[0];
                     Directory.CreateDirectory(xslsPath);
                     StatusMessage = $"Utworzono folder: {xslsPath}. Dodaj tam pliki .xsl lub .xslt";
-                    
+
                     System.Windows.MessageBox.Show(
                         $"Folder Xsls nie istniał i został utworzony w:{Environment.NewLine}{xslsPath}{Environment.NewLine}{Environment.NewLine}" +
-                        "Umieść tam pliki XSL/XSLT i kliknij 'Odśwież XSL'.",
+                        "Umieść tam pliki XSL/XSLT.",
                         "Informacja",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
@@ -429,22 +428,20 @@ namespace XmlWizualizator
                         xslTransform.Transform(xmlPath, xmlWriter);
                         var transformedContent = stringWriter.ToString();
 
-                        const string disclaimer = @"
-<div style=""clear: both; height: 0; font-size: 0; line-height: 0;""></div>
-<div style=""margin-top: 2em; padding: 1em; border-top: 1px solid #333; font-size: 0.9em; text-align: center; clear: both;"">
-    <strong>Uwaga</strong><br/>
-    Wizualizacja nie reprezentuje przesłanego dokumentu. Jest jedynie wizualną reprezentacją treści zawartej w dokumencie, która nie zawiera żadnych podpisów, ani informacji o podpisach.
-</div>";
-
-                        if (transformedContent.Contains("</body>", StringComparison.OrdinalIgnoreCase))
+                        // Wstaw disclaimer wewnątrz <main> jeśli istnieje, w przeciwnym razie przed </body>
+                        if (transformedContent.Contains("</main>", StringComparison.OrdinalIgnoreCase))
+                        {
+                            int mainCloseIndex = transformedContent.LastIndexOf("</main>", StringComparison.OrdinalIgnoreCase);
+                            transformedContent = transformedContent.Insert(mainCloseIndex, DisclaimerHtml);
+                        }
+                        else if (transformedContent.Contains("</body>", StringComparison.OrdinalIgnoreCase))
                         {
                             int bodyCloseIndex = transformedContent.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
-                            transformedContent = transformedContent.Insert(bodyCloseIndex, disclaimer);
+                            transformedContent = transformedContent.Insert(bodyCloseIndex, DisclaimerHtml);
                         }
                         else
                         {
-                            // jeśli brak body, dołącz na końcu
-                            transformedContent += disclaimer;
+                            transformedContent += DisclaimerHtml;
                         }
 
                         string outputFileName = Path.GetFileNameWithoutExtension(xmlPath) + ".pdf";
@@ -491,7 +488,7 @@ namespace XmlWizualizator
                 {
                     var xmlDoc = new XmlDocument();
                     xmlDoc.Load(SelectedXmlPath);
-                    
+
                     using var stringWriter = new StringWriter();
                     using var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings
                     {
@@ -501,7 +498,7 @@ namespace XmlWizualizator
                         NewLineHandling = NewLineHandling.Replace,
                         Encoding = Encoding.UTF8
                     });
-                    
+
                     xmlDoc.Save(xmlWriter);
                     RawXmlContent = stringWriter.ToString();
                     StatusMessage = $"Załadowano surowy XML: {Path.GetFileName(SelectedXmlPath)}";
@@ -522,7 +519,7 @@ namespace XmlWizualizator
                 {
                     var xmlDoc = new XmlDocument();
                     xmlDoc.Load(SelectedXslPath);
-                    
+
                     using var stringWriter = new StringWriter();
                     using var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings
                     {
@@ -532,7 +529,7 @@ namespace XmlWizualizator
                         NewLineHandling = NewLineHandling.Replace,
                         Encoding = Encoding.UTF8
                     });
-                    
+
                     xmlDoc.Save(xmlWriter);
                     RawXslContent = stringWriter.ToString();
                     StatusMessage = $"Załadowano surowy XSL: {Path.GetFileName(SelectedXslPath)}";
@@ -547,9 +544,9 @@ namespace XmlWizualizator
 
         private bool CanTransform()
         {
-            return !string.IsNullOrEmpty(SelectedXmlPath) && 
+            return !string.IsNullOrEmpty(SelectedXmlPath) &&
                    !string.IsNullOrEmpty(SelectedXslPath) &&
-                   File.Exists(SelectedXmlPath) && 
+                   File.Exists(SelectedXmlPath) &&
                    File.Exists(SelectedXslPath);
         }
 
@@ -560,42 +557,41 @@ namespace XmlWizualizator
                 StatusMessage = "Przetwarzanie...";
 
                 var xslTransform = new XslCompiledTransform();
-                
+
                 var settings = new XsltSettings(enableDocumentFunction: true, enableScript: true);
                 xslTransform.Load(SelectedXslPath!, settings, new XmlUrlResolver());
 
                 using var stringWriter = new StringWriter();
-                using var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings 
-                { 
+                using var xmlWriter = XmlWriter.Create(stringWriter, new XmlWriterSettings
+                {
                     Indent = true,
                     OmitXmlDeclaration = false,
                     Encoding = Encoding.UTF8
                 });
 
                 xslTransform.Transform(SelectedXmlPath!, xmlWriter);
-                
+
                 var transformedContent = stringWriter.ToString();
-                
-                const string disclaimer = @"
-<div style=""clear: both; height: 0; font-size: 0; line-height: 0;""></div>
-<div style=""margin-top: 2em; padding: 1em; border-top: 1px solid #333; font-size: 0.9em; text-align: center; clear: both;"">
-    <strong>Uwaga</strong><br/>
-    Wizualizacja nie reprezentuje przesłanego dokumentu. Jest jedynie wizualną reprezentacją treści zawartej w dokumencie, która nie zawiera żadnych podpisów, ani informacji o podpisach.
-</div>";
-                
-                if (transformedContent.Contains("</body>", StringComparison.OrdinalIgnoreCase))
+
+                // Wstaw disclaimer wewnątrz <main> jeśli istnieje, w przeciwnym razie przed </body>
+                if (transformedContent.Contains("</main>", StringComparison.OrdinalIgnoreCase))
+                {
+                    int mainCloseIndex = transformedContent.LastIndexOf("</main>", StringComparison.OrdinalIgnoreCase);
+                    transformedContent = transformedContent.Insert(mainCloseIndex, DisclaimerHtml);
+                }
+                else if (transformedContent.Contains("</body>", StringComparison.OrdinalIgnoreCase))
                 {
                     int bodyCloseIndex = transformedContent.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
-                    transformedContent = transformedContent.Insert(bodyCloseIndex, disclaimer);
+                    transformedContent = transformedContent.Insert(bodyCloseIndex, DisclaimerHtml);
                 }
                 else
                 {
-                    transformedContent += disclaimer;
+                    transformedContent += DisclaimerHtml;
                 }
-                
+
                 TransformedOutput = transformedContent;
                 HtmlContent = TransformedOutput;
-                
+
                 StatusMessage = $"Transformacja zakończona pomyślnie. Rozmiar wyniku: {TransformedOutput.Length} znaków";
             }
             catch (Exception ex)
@@ -604,11 +600,11 @@ namespace XmlWizualizator
                 TransformedOutput = $"=== BŁĄD TRANSFORMACJI ===\n{Environment.NewLine}{Environment.NewLine}" +
                                    $"{ex.Message}{Environment.NewLine}{Environment.NewLine}" +
                                    $"Stack Trace:{Environment.NewLine}{ex.StackTrace}";
-                
+
                 System.Windows.MessageBox.Show(
-                    $"Błąd podczas transformacji XML:{Environment.NewLine}{Environment.NewLine}{ex.Message}", 
-                    "Błąd transformacji", 
-                    MessageBoxButton.OK, 
+                    $"Błąd podczas transformacji XML:{Environment.NewLine}{Environment.NewLine}{ex.Message}",
+                    "Błąd transformacji",
+                    MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
         }
@@ -630,21 +626,32 @@ namespace XmlWizualizator
             PrintPreviewRequested?.Invoke(this, EventArgs.Empty);
         }
 
-        private void ShowDiagnostics()
-        {
-            var message = $"BaseDirectory: {AppDomain.CurrentDomain.BaseDirectory}{Environment.NewLine}" +
-                          $"CurrentDirectory: {Directory.GetCurrentDirectory()}{Environment.NewLine}" +
-                          $"BaseDirectory + Xsls: {Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Xsls")}{Environment.NewLine}" +
-                          $"Folder istnieje: {Directory.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Xsls"))}";
-            
-            System.Windows.MessageBox.Show(message, "Diagnostyka ścieżek", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
         protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        public void LoadXmlFromPath(string path)
+        {
+            SelectedXmlPath = path;
+            StatusMessage = BuildXmlStatusMessage(path, "Załadowano nowy");
+            if (IsXmlMode)
+            {
+                LoadRawXml();
+            }
+        }
+
+        private string BuildXmlStatusMessage(string? fileName, string action = "Wybrano") =>
+            string.IsNullOrEmpty(SelectedXslPath)
+                ? $"{action} plik XML: {Path.GetFileName(fileName)}. Wybierz szablon XSL, a następnie kliknij Transformuj."
+                : $"{action} plik XML: {Path.GetFileName(fileName)}. Jeśli wybrano odpowiedni szablon XSL, kliknij Transformuj.";
         #endregion
+
+        private const string DisclaimerHtml = @"
+<div style=""clear: both; height: 0; font-size: 0; line-height: 0;""></div>
+<div style=""margin-top: 1em; padding: 1em; border-top: 1px solid #aaa; font-size: 0.8em; text-align: center; clear: both; color: #242424;"">
+    <strong>Uwaga</strong><br/>
+    Wizualizacja nie reprezentuje przesłanego dokumentu. Jest jedynie wizualną reprezentacją treści zawartej w dokumencie, która nie zawiera żadnych podpisów, ani informacji o podpisach.
+</div>";
     }
 }
